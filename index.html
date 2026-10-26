@@ -75,6 +75,14 @@
   .tagc { position: absolute; transform: translate(-50%, -100%); text-align: center; font: 700 12px 'Titillium Web'; letter-spacing: .08em; white-space: nowrap; text-shadow: 0 1px 6px #000; }
   .tagc i { font-style: normal; display: inline-block; padding: 1px 6px; margin-right: 6px; background: var(--ink); color: #000; border-radius: 3px; }
   body.capture .site, body.capture #foot { display: none !important; }
+  body.film #brand, body.film #race, body.film #stamp, body.film #bc { opacity: 0; }
+  body.film #tower, body.film #pit { display: block !important; opacity: 0; }
+  #cap { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font: 600 46px Inter, sans-serif; letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.8); }
+  #cap span { display: inline-block; margin: 0 .14em; }
+  #end { position: absolute; inset: 0; background: #000; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #end img { width: 520px; height: 520px; }
+  #end .u { margin-top: -40px; font: 600 26px 'Titillium Web'; letter-spacing: .14em; }
+  #end .d { margin-top: 18px; font-size: 14px; color: rgba(255,255,255,.45); }
   canvas { cursor: grab; } canvas.drag { cursor: grabbing; }
   @media (max-width: 900px) { #pit, #race div:nth-child(3) { display: none; } #tower { width: auto; right: 16px; left: 16px; top: auto; bottom: 60px; max-height: 40vh; overflow: auto; } #brand { left: 16px; top: 18px; } #race { top: 70px; } }
 </style>
@@ -92,6 +100,8 @@
   <button id="auto" class="site">AUTO CAMERA</button>
   <div id="foot">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
   <div id="stamp"></div>
+  <div id="cap"></div>
+  <div id="end"><img src="brand/sgp_logo_text.png" alt=""><div class="u">squadsgp.vercel.app</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
 </div>
 <script>window.READY = false</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/" } }</script>
@@ -197,13 +207,12 @@ ribbon(RW / 2 + 2.6, RW / 2 + 2.9, .05, ledMat); ribbon(-RW / 2 - 2.9, -RW / 2 -
 }
 // a grandstand along the main straight: tiers of dark seating with a lit fascia
 {
-  const f = frames[Math.floor(N * .97)], m = new THREE.MeshStandardMaterial({ color: 0x0c0d10, roughness: .8 })
+  const f = frames[Math.floor(N * .1)], m = new THREE.MeshStandardMaterial({ color: 0x0c0d10, roughness: .8 })
   for (let i = 0; i < 6; i++) {
     const tier = new THREE.Mesh(new THREE.BoxGeometry(160, 2, 5), m)
     tier.position.copy(f.p).addScaledVector(f.n, -(RW / 2 + 22 + i * 4.6)).setY(1 + i * 2.2); tier.rotation.y = -Math.atan2(f.t.z, f.t.x); scene.add(tier)
   }
-  const fas = new THREE.Mesh(new THREE.BoxGeometry(160, .3, .3), new THREE.MeshBasicMaterial({ color: new THREE.Color(.35, .33, .3) }))
-  fas.position.copy(f.p).addScaledVector(f.n, -(RW / 2 + 19.5)).setY(2.3); fas.rotation.y = -Math.atan2(f.t.z, f.t.x); scene.add(fas)
+  // (no fascia strip: it read as a stray line from the air)
 }
 
 // ------------------------------------------------------------------ cars: a sleek light capsule per squad + a fading trail
@@ -396,6 +405,36 @@ function updateTags() {
   $('tags').innerHTML = html.join('')
 }
 
+// ------------------------------------------------------------------ film mode: the marketing cut (capture=1&film=1)
+const FILM = Q.get('film')
+const FILM_SHOTS = [[0, 0], [4.2, 3], [9, 0], [15, 1], [21, 3], [27, 0]]
+const FILM_CAPS = [
+  [0.5, 4.0, 'pump.fun is running a $2,500,000 race.'],
+  [4.5, 8.7, `${'{N}'} squads. Up to 20 traders each. Two weeks.`],
+  [9.3, 14.6, 'So we built the broadcast.'],
+  [15.2, 20.6, 'Every squad is a car. Its profit is its position.'],
+  [21.2, 26.6, 'See what the leaders hold. Live.'],
+  [27.2, 30.6, 'Live until the flag drops, 9 November.'],
+]
+function filmPose(t) {
+  let i = FILM_SHOTS.length - 1; while (i > 0 && FILM_SHOTS[i][0] > t) i--
+  const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kind, t, cars[0], t0)
+  if (i > 0) { const f = ease((t - t0) / 1.4); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(pk, t, cars[0], p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
+  return cur
+}
+const ramp = (t, a, b, fade = .6) => clamp((t - a) / fade) * clamp((b - t) / fade)
+function filmOverlay(t) {
+  const c = FILM_CAPS.find(([a, b]) => t >= a - .1 && t <= b + .6)
+  if (c) {
+    const [a, b, text] = c, words = text.replace('{N}', (board.competition?.entriesCount || 962).toLocaleString('en-US')).split(' '), out = clamp((b + .6 - t) / .6)
+    $('cap').innerHTML = words.map((w, i) => { const k = clamp((t - a - i * .16) / .45); return `<span style="opacity:${(k * out).toFixed(3)};filter:blur(${((1 - k) * 10).toFixed(1)}px);transform:translateY(${((1 - k) * 10).toFixed(1)}px)">${esc(w)}</span>` }).join('')
+  } else $('cap').innerHTML = ''
+  $('tower').style.opacity = ramp(t, 9.6, 27, .8)
+  $('pit').style.opacity = ramp(t, 21.4, 27, .8)
+  $('brand').style.opacity = $('race').style.opacity = ramp(t, 9.6, 31, .8)
+  $('end').style.opacity = clamp((t - 30.8) / 1)
+}
+
 // ------------------------------------------------------------------ frame
 const SPEED = 46            // units / second around the lap
 let lastT = 0
@@ -424,7 +463,7 @@ function frame(t) {
     }
     c.trail.geometry.attributes.position.needsUpdate = c.trail.geometry.attributes.a.needsUpdate = c.trail.geometry.attributes.col.needsUpdate = true
   }
-  let pose = directorPose(t)
+  let pose = FILM ? filmPose(t) : directorPose(t)
   if (camMode === 'free') { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, o.target.y + Math.sin(o.pitch) * o.dist, o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
   else if (blendFrom) { const f = ease((performance.now() - blendAt) / 2400); if (f >= 1) blendFrom = null; else pose = { pos: blendFrom.pos.clone().lerp(pose.pos, f), look: blendFrom.look.clone().lerp(pose.look, f) } }
   lastPose = pose
@@ -432,11 +471,12 @@ function frame(t) {
   grade.uniforms.t.value = t % 100
   composer.render()
   updateTags(); updateBroadcast(performance.now()); updateCountdown()
+  if (FILM) filmOverlay(t)
 }
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix() })
 
 await load(); renderTower(); renderPit()
-if (CAPTURE) { document.body.classList.add('capture'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
+if (CAPTURE) { document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
 else {
   setInterval(async () => { await load(); renderTower(); renderPit(); if (selected) select(selected) }, 60000)
   const t0 = performance.now(); const loop = () => { frame((performance.now() - t0) / 1000); requestAnimationFrame(loop) }; loop()

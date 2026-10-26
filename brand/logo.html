@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&display=swap" rel="stylesheet">
+<style>html, body { margin: 0; background: #000; } svg { display: block; }</style>
+</head>
+<body>
+<svg id="s" width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff" stop-opacity=".6"/>
+      <stop offset=".3" stop-color="#fff" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1000" fill="#000"/>
+  <g id="g"></g>
+</svg>
+<script>
+// The circuit from the site (same control points), drawn as one white line.
+const Q = new URLSearchParams(location.search)
+const CP = [[-260, 0], [-120, -10], [60, -14], [200, -40], [262, -110], [230, -170], [150, -160], [110, -110], [40, -96], [-10, -140], [-80, -190], [-170, -170], [-230, -120], [-300, -60]]
+// closed centripetal Catmull-Rom, sampled
+function sample(pts, n = 1400) {
+  const P = (i) => pts[(i + pts.length) % pts.length], out = []
+  for (let i = 0; i < pts.length; i++) {
+    const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2)
+    const seg = n / pts.length
+    for (let k = 0; k < seg; k++) {
+      const t = k / seg, t2 = t * t, t3 = t2 * t
+      out.push([0, 1].map((d) => .5 * (2 * p1[d] + (-p0[d] + p2[d]) * t + (2 * p0[d] - 5 * p1[d] + 4 * p2[d] - p3[d]) * t2 + (-p0[d] + 3 * p1[d] - 3 * p2[d] + p3[d]) * t3)))
+    }
+  }
+  return out
+}
+const ROT = +(Q.get('rot') || -14) * Math.PI / 180, SY = +(Q.get('sy') || 2.0)
+const raw = sample(CP).map(([x, y]) => { y *= SY; return [x * Math.cos(ROT) - y * Math.sin(ROT), x * Math.sin(ROT) + y * Math.cos(ROT)] })
+const xs = raw.map((p) => p[0]), ys = raw.map((p) => p[1])
+const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
+const S = +(Q.get('size') || 760) / Math.max(maxX - minX, maxY - minY)
+const cy = +(Q.get('cy') || 500)
+const pts = raw.map(([x, y]) => [500 + (x - (minX + maxX) / 2) * S, cy + (y - (minY + maxY) / 2) * S])
+const NS = 'http://www.w3.org/2000/svg', g = document.getElementById('g')
+const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); g.appendChild(e); return e }
+const d = 'M' + pts.map((p) => p.map((v) => v.toFixed(1)).join(' ')).join(' L') + ' Z'
+const W = +(Q.get('w') || 30)
+el('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': W, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' })
+// chequered start line across the main straight (point 0)
+const a = pts[0], b = pts[6], tx = b[0] - a[0], ty = b[1] - a[1], L = Math.hypot(tx, ty), nx = -ty / L, ny = tx / L, ux = tx / L, uy = ty / L
+const sq = W * .5
+for (let i = -1; i <= 1; i++) for (let j = -1; j < 2; j++) {
+  const cx = a[0] + nx * i * sq + ux * j * sq, cy2 = a[1] + ny * i * sq + uy * j * sq
+  el('rect', { x: cx - sq / 2, y: cy2 - sq / 2, width: sq, height: sq, fill: (i + j) % 2 ? '#000' : '#fff', transform: `rotate(${Math.atan2(uy, ux) * 180 / Math.PI} ${cx} ${cy2})` })
+}
+// the leader: a light with a short fading streak behind it, a third of the way round
+const li = Math.floor(pts.length * .3)
+const tail = pts.slice(li - 90, li + 1)
+el('circle', { cx: pts[li][0], cy: pts[li][1], r: W * 4.2, fill: 'url(#glow)' })
+el('circle', { cx: pts[li][0], cy: pts[li][1], r: W * 1.05, fill: '#000' })
+el('circle', { cx: pts[li][0], cy: pts[li][1], r: W * .78, fill: '#fff' })
+if (Q.get('text')) { const t = el('text', { x: 500, y: 880, 'text-anchor': 'middle', fill: '#fff', 'font-family': 'Titillium Web', 'font-weight': 700, 'font-size': 74, 'letter-spacing': 22 }); t.textContent = 'SQUAD GP' }
+document.fonts.ready.then(() => { window.READY = true })
+</script>
+</body>
+</html>
