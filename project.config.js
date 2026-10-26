@@ -2,5 +2,5 @@
 export default {
   ticker: 'SQUADS',
   name: 'Squad Wars',
-  mint: '',
+  mint: '5SqkQx8YrFfe73jL1Y8rwvJNv5zTZoyc7rPt1GoYpump',
 }
