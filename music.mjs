@@ -2,7 +2,7 @@
 // usage: node music.mjs out/music.wav      (timings match the film mode in index.html)
 import fs from 'node:fs'
 
-const SR = 44100, DUR = 36, N = SR * DUR, TAU = Math.PI * 2
+const SR = 44100, DUR = 27, N = SR * DUR, TAU = Math.PI * 2
 const L = new Float32Array(N), R = new Float32Array(N), VL = new Float32Array(N), VR = new Float32Array(N)
 const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12)
 let seed = 4242
@@ -53,33 +53,26 @@ function thud(t0, amp = 0.5) { let ph = 0; for (let k = 0; k < 0.5 * SR; k++) { 
 function drop(t0, amp = 0.16) { let ph = 0; for (let k = 0; k < 0.45 * SR; k++) { const tt = k / SR; ph += (TAU * (900 * Math.exp(-tt * 5) + 120)) / SR; add(t0 * SR + k, Math.sin(ph) * Math.exp(-tt * 6) * amp, 0, 0.3) } }
 
 
-const BEAT = 60 / 124, DROP = 9.0
-// Am - F - C - G, a minor drive
+const BEAT = 60 / 128, DROP = 8.2, END = 22.9
 const CH = [[45, [57, 60, 64, 69]], [41, [57, 60, 65, 69]], [48, [55, 60, 64, 67]], [43, [55, 59, 62, 67]]]
 const chordAt = (t) => CH[Math.floor(Math.max(0, t) / (BEAT * 8)) & 3]
-// 1. intro (0-9): a held pad, a pulsing sub, ticking hats, the field rolling by
-pad(0, 9.2, [57, 60, 64, 69], 0.026, 1.5, 0.5)
-for (let t = 0.0; t < DROP; t += BEAT / 2) hat(t, 0.025 + 0.03 * (t / DROP), (Math.floor(t / BEAT) % 2 ? .3 : -.3))
-for (let t = 4.2; t < DROP; t += BEAT) sub(t, BEAT * .45, chordAt(t)[0], 0.12)
-whoosh(4.0, 0.9, 0.22); riser(6.8, 2.2, 0.22)
-// 2. the drop (9-27): kick on the beat, snap on 2 and 4, an arpeggio, the chord pad
+// intro (0-8.2): pad, building hats, sub pulse from the first cut, a riser into the drop
+pad(0, 8.4, [57, 60, 64, 69], 0.026, 1.0, 0.4)
+for (let t = 0; t < DROP; t += BEAT / 2) hat(t, 0.025 + 0.035 * (t / DROP), (Math.floor(t / BEAT) % 2 ? .3 : -.3))
+for (let t = 3.0; t < DROP; t += BEAT) sub(t, BEAT * .45, chordAt(t)[0], 0.13)
+riser(6.2, 2.0, 0.24)
+// the drop (8.2-20.4): kick, snap, sub, arpeggio
 boom(DROP, 0.55)
-for (let t = DROP; t < 27; t += BEAT) {
-  const b = Math.round((t - DROP) / BEAT)
-  kick(t, 0.62); if (b % 2) snap(t, 0.17)
-  hat(t + BEAT / 2, 0.05, .25)
-  sub(t, BEAT * .5, chordAt(t)[0], 0.16)
-}
-for (let t = DROP; t < 27; t += BEAT * 8) pad(t, t + BEAT * 8, chordAt(t + .01)[1], 0.022, 0.08, 0.3)
-for (let t = DROP + BEAT * 4; t < 27; t += BEAT / 2) { const n = chordAt(t)[1], k = Math.round((t - DROP) / (BEAT / 2)); pluck(t, n[k % 4] + 12, 0.045, 5, (k % 2 ? .4 : -.4), 0.5) }
-for (const t of [15, 21]) whoosh(t - .35, 0.8, 0.26)
-// 3. the run-out (27-31): drums drop away, a riser into the end card
-pad(27, 31, [57, 60, 64, 69, 72], 0.03, 0.4, 0.6); riser(28.4, 2.4, 0.24)
-for (let t = 27; t < 30.8; t += BEAT) hat(t, 0.04, .2)
-// 4. end card (30.8-36)
-boom(30.8, 0.65); sparkle(30.9, 0.05)
-pad(30.8, 35.5, [45, 57, 64, 69, 72], 0.04, 0.2, 0.5)
-pluck(31.0, 81, 0.06, 3, 0, 0.7); chime(32.4)
+for (let t = DROP; t < 20.4; t += BEAT) { const b = Math.round((t - DROP) / BEAT); kick(t, 0.62); if (b % 2) snap(t, 0.17); hat(t + BEAT / 2, 0.05, .25); sub(t, BEAT * .5, chordAt(t)[0], 0.16) }
+for (let t = DROP; t < 20.4; t += BEAT * 8) pad(t, t + BEAT * 8, chordAt(t + .01)[1], 0.022, 0.08, 0.3)
+for (let t = DROP + BEAT * 2; t < 20.4; t += BEAT / 2) { const n = chordAt(t)[1], k = Math.round((t - DROP) / (BEAT / 2)); pluck(t, n[k % 4] + 12, 0.045, 5, (k % 2 ? .4 : -.4), 0.5) }
+// a pass-by on every hard cut
+for (const t of [3, 5.6, 11.2, 14, 16.8, 20.4]) whoosh(t - .3, 0.6, 0.24)
+// "Squad Wars." (20.4-22.9): drums out, riser; end card
+pad(20.4, END, [57, 60, 64, 69, 72], 0.03, 0.2, 0.4); riser(20.9, 2.0, 0.24)
+boom(END, 0.65); sparkle(END + .1, 0.05)
+pad(END, 26.6, [45, 57, 64, 69, 72], 0.04, 0.2, 0.5)
+pluck(END + .2, 81, 0.06, 3, 0, 0.7); chime(END + 1.4)
 /* reverb */
 const taps = [[0.037, 0.5], [0.061, 0.42], [0.097, 0.36], [0.141, 0.3], [0.199, 0.24], [0.271, 0.19], [0.37, 0.14], [0.5, 0.1], [0.66, 0.07]]
 let dl = 0, dr = 0
@@ -90,7 +83,7 @@ for (let i = 0; i < N; i++) {
 }
 /* master */
 let peak = 0
-for (let i = 0; i < N; i++) { const t = i / SR, f = seg(t, 0, 0.05) * (1 - seg(t, 34.6, 36)); L[i] = Math.tanh(L[i] * 1.1) * f; R[i] = Math.tanh(R[i] * 1.1) * f; peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i])) }
+for (let i = 0; i < N; i++) { const t = i / SR, f = seg(t, 0, 0.05) * (1 - seg(t, 25.8, 27)); L[i] = Math.tanh(L[i] * 1.1) * f; R[i] = Math.tanh(R[i] * 1.1) * f; peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i])) }
 const g = 0.9 / peak, buf = Buffer.alloc(44 + N * 4)
 buf.write('RIFF', 0); buf.writeUInt32LE(36 + N * 4, 4); buf.write('WAVE', 8); buf.write('fmt ', 12); buf.writeUInt32LE(16, 16); buf.writeUInt16LE(1, 20); buf.writeUInt16LE(2, 22); buf.writeUInt32LE(SR, 24); buf.writeUInt32LE(SR * 4, 28); buf.writeUInt16LE(4, 32); buf.writeUInt16LE(16, 34); buf.write('data', 36); buf.writeUInt32LE(N * 4, 40)
 for (let i = 0; i < N; i++) { buf.writeInt16LE(Math.round(L[i] * g * 32767), 44 + i * 4); buf.writeInt16LE(Math.round(R[i] * g * 32767), 46 + i * 4) }

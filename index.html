@@ -333,7 +333,7 @@ function shotPose(kind, T, leader, t0 = T) {
     let best = 1, gap = 1e9
     for (let i = 1; i < 10; i++) { const g = cars[i - 1].off - cars[i].off; if (Math.abs(g) < gap) { gap = Math.abs(g); best = i } }
     const c = cars[best], f = at(c.s)
-    const p = f.p.clone().addScaledVector(f.t, -34).addScaledVector(f.n, -10); p.y = 16
+    const p = f.p.clone().addScaledVector(f.t, -44).addScaledVector(f.n, -12); p.y = 19
     return { pos: p, look: f.p.clone().addScaledVector(f.t, 8).setY(1) }
   }
 }
@@ -426,34 +426,45 @@ function updateTags() {
 
 // ------------------------------------------------------------------ film mode: the marketing cut (capture=1&film=1)
 const FILM = Q.get('film')
-const FILM_SHOTS = [[0, 0], [4.2, 3], [9, 0], [15, 1], [21, 3], [27, 0]]
+// fast cut, 27 s: [start, camera kind] (0 wide, 1 chase, 2 trackside, 3 battle)
+const FILM_SHOTS = [[0, 0], [3, 3], [5.6, 1], [8.2, 0], [11.2, 2], [14, 3], [16.8, 0], [20.4, 1]]
+// each caption has its own place and entrance, so no two scenes look alike
 const FILM_CAPS = [
-  [0.5, 4.0, 'pump.fun is running a $2,500,000 race.'],
-  [4.5, 8.7, `${'{N}'} squads. Up to 20 traders each. Two weeks.`],
-  [9.3, 14.6, 'So we built the broadcast.'],
-  [15.2, 20.6, 'Every squad is a car. Its profit is its position.'],
-  [21.2, 26.6, 'See what the leaders hold. Live.'],
-  [27.2, 30.6, 'Live until the flag drops, 9 November.'],
+  { a: .35, b: 2.8, text: 'pump.fun put $2,500,000 on the line.', css: 'left:72px;bottom:96px;text-align:left;font-size:44px', fx: 'up' },
+  { a: 3.1, b: 5.4, text: '{N} squads.', css: 'left:0;right:0;top:40%;text-align:center;font-size:110px;font-weight:700;letter-spacing:-.03em', fx: 'scale' },
+  { a: 5.75, b: 8.0, text: 'Two weeks. $1.5M to the winner.', css: 'right:72px;top:88px;text-align:right;font-size:40px', fx: 'left' },
+  { a: 8.35, b: 11.0, text: 'So we made it a race.', css: 'left:0;right:0;bottom:84px;text-align:center;font-size:52px', fx: 'blur' },
+  { a: 11.35, b: 13.8, text: 'Every squad is a car.', css: 'right:72px;top:42%;text-align:right;font-size:58px;font-weight:700', fx: 'left' },
+  { a: 14.15, b: 16.6, text: 'Profit is position.', css: 'left:0;right:0;top:110px;text-align:center;font-size:64px;font-weight:700', fx: 'down' },
+  { a: 16.95, b: 20.2, text: 'See what the leaders hold. Live.', css: 'left:470px;bottom:120px;text-align:left;font-size:40px', fx: 'up' },
+  { a: 20.55, b: 22.8, text: 'Squad Wars.', css: 'left:0;right:0;top:44%;text-align:center;font-size:96px;font-weight:700;letter-spacing:.02em', fx: 'scale' },
 ]
+const FILM_END = 22.9
 function filmPose(t) {
   let i = FILM_SHOTS.length - 1; while (i > 0 && FILM_SHOTS[i][0] > t) i--
   const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kind, t, cars[0], t0)
-  if (i > 0) { const f = ease((t - t0) / 1.4); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(pk, t, cars[0], p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
+  if (i > 0) { const f = ease((t - t0) / .28); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(pk, t, cars[0], p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
   return cur
 }
 const ramp = (t, a, b, fade = .6) => clamp((t - a) / fade) * clamp((b - t) / fade)
 function filmOverlay(t) {
-  const c = FILM_CAPS.find(([a, b]) => t >= a - .1 && t <= b + .6)
+  const c = FILM_CAPS.find((x) => t >= x.a - .1 && t <= x.b + .35)
   if (c) {
-    const [a, b, text] = c, words = text.replace('{N}', (board.competition?.entriesCount || 962).toLocaleString('en-US')).split(' '), out = clamp((b + .6 - t) / .6)
-    $('cap').innerHTML = words.map((w, i) => { const k = clamp((t - a - i * .16) / .45); return `<span style="opacity:${(k * out).toFixed(3)};filter:blur(${((1 - k) * 10).toFixed(1)}px);transform:translateY(${((1 - k) * 10).toFixed(1)}px)">${esc(w)}</span>` }).join('')
+    const words = c.text.replace('{N}', (board.competition?.entriesCount || 962).toLocaleString('en-US')).split(' '), out = clamp((c.b + .35 - t) / .35)
+    $('cap').style.cssText = 'position:absolute;' + c.css
+    $('cap').innerHTML = words.map((w, i) => {
+      const k = E3(clamp((t - c.a - i * .09) / .32)), o = (k * out).toFixed(3)
+      const tf = c.fx === 'up' ? `translateY(${(1 - k) * 22}px)` : c.fx === 'down' ? `translateY(${-(1 - k) * 22}px)` : c.fx === 'left' ? `translateX(${(1 - k) * 40}px)` : c.fx === 'right' ? `translateX(${-(1 - k) * 40}px)` : c.fx === 'scale' ? `scale(${1.25 - .25 * k})` : 'none'
+      return `<span style="opacity:${o};filter:blur(${((1 - k) * (c.fx === 'blur' ? 16 : 7)).toFixed(1)}px);transform:${tf}">${esc(w)}</span>`
+    }).join('')
   } else $('cap').innerHTML = ''
-  $('tower').style.opacity = ramp(t, 9.6, 27, .8)
-  $('pit').style.opacity = ramp(t, 21.4, 27, .8)
-  $('brand').style.opacity = $('race').style.opacity = ramp(t, 9.6, 31, .8)
-  $('end').style.opacity = clamp((t - 30.8) / 1)
-  const po = ramp(t, .3, 4.3, .5); $('pfOpen').style.opacity = po; $('pfOpen').style.transform = `translateX(-50%) translateY(${((1 - clamp((t - .3) / .5)) * 12).toFixed(1)}px)`
+  $('tower').style.opacity = ramp(t, 8.3, 20.3, .5)
+  $('pit').style.opacity = ramp(t, 16.9, 20.3, .5)
+  $('brand').style.opacity = $('race').style.opacity = ramp(t, 8.3, FILM_END, .5)
+  $('end').style.opacity = clamp((t - FILM_END) / .7)
+  const po = ramp(t, .3, 2.9, .4); $('pfOpen').style.opacity = po; $('pfOpen').style.left = '72px'; $('pfOpen').style.bottom = '168px'; $('pfOpen').style.transform = `translateY(${((1 - clamp((t - .3) / .4)) * 12).toFixed(1)}px)`
 }
+const E3 = (x) => 1 - Math.pow(1 - x, 3)
 
 // ------------------------------------------------------------------ frame
 const SPEED = 46            // units / second around the lap
