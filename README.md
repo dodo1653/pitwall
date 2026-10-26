@@ -1,4 +1,4 @@
-# Squad GP
+# Squad Wars ($SQUADS)
 
 The pump.fun $2.5M Squads Competition (26 Oct – 9 Nov 2026) as a live Grand Prix:
 - **The race:** every squad is a car on a 3D night circuit, ordered by profit; the spacing between cars is the gap in dollars.

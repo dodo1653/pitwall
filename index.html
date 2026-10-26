@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Squad GP</title>
+<title>Squad Wars</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The pump.fun Squads Competition as a live Grand Prix: every squad is a car, its profit is its position.">
+<meta name="description" content="Squad Wars ($SQUADS): the pump.fun $2.5M Squads Competition as a live race. Every squad is a car, its profit is its position.">
+<meta property="og:title" content="Squad Wars ($SQUADS)">
+<meta property="og:description" content="The pump.fun $2.5M Squads Competition as a live race. Every squad is a car, its profit is its position.">
+<meta property="og:image" content="https://squadsgp.vercel.app/brand/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -80,8 +84,13 @@
   #cap { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font: 600 46px Inter, sans-serif; letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.8); }
   #cap span { display: inline-block; margin: 0 .14em; }
   #end { position: absolute; inset: 0; background: #000; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  #end img { width: 520px; height: 520px; }
-  #end .u { margin-top: -40px; font: 600 26px 'Titillium Web'; letter-spacing: .14em; }
+  #end img.lg { width: 470px; height: 470px; }
+  #end .pf { margin-top: 26px; display: flex; align-items: center; gap: 12px; font: 600 16px Inter; color: rgba(255,255,255,.8); }
+  .chip { width: 44px; height: 44px; border-radius: 11px; background: #fff; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+  .chip img { width: 40px; height: 40px; }
+  #pfOpen { position: absolute; left: 50%; bottom: 196px; transform: translateX(-50%); opacity: 0; }
+  #pfOpen .chip { width: 64px; height: 64px; border-radius: 15px; } #pfOpen .chip img { width: 58px; height: 58px; }
+  #end .u { margin-top: 18px; font: 600 26px 'Titillium Web'; letter-spacing: .14em; }
   #end .d { margin-top: 18px; font-size: 14px; color: rgba(255,255,255,.45); }
   canvas { cursor: grab; } canvas.drag { cursor: grabbing; }
   @media (max-width: 900px) { #pit, #race div:nth-child(3) { display: none; } #tower { width: auto; right: 16px; left: 16px; top: auto; bottom: 60px; max-height: 40vh; overflow: auto; } #brand { left: 16px; top: 18px; } #race { top: 70px; } }
@@ -89,7 +98,7 @@
 </head>
 <body>
 <div id="ui">
-  <div id="brand"><div class="n">SQUAD GP</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
+  <div id="brand"><div class="n">SQUAD WARS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
   <div id="race" class="glass"><div><b id="cd">-</b><span>To the flag</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
   <div id="tower" class="glass site"><div class="hd"><span>POS · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
   <div id="pit" class="glass site"><h3>PIT WALL</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
@@ -101,7 +110,8 @@
   <div id="foot">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
   <div id="stamp"></div>
   <div id="cap"></div>
-  <div id="end"><img src="brand/sgp_logo_text.png" alt=""><div class="u">squadsgp.vercel.app</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
+  <div id="pfOpen"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt="pump.fun"></span></div>
+  <div id="end"><img class="lg" src="brand/squads_logo_text.png" alt=""><div class="u">$SQUADS · squadsgp.vercel.app</div><div class="pf"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt=""></span>Live from the pump.fun Squads Competition</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
 </div>
 <script>window.READY = false</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/" } }</script>
@@ -433,6 +443,7 @@ function filmOverlay(t) {
   $('pit').style.opacity = ramp(t, 21.4, 27, .8)
   $('brand').style.opacity = $('race').style.opacity = ramp(t, 9.6, 31, .8)
   $('end').style.opacity = clamp((t - 30.8) / 1)
+  const po = ramp(t, .3, 4.3, .5); $('pfOpen').style.opacity = po; $('pfOpen').style.transform = `translateX(-50%) translateY(${((1 - clamp((t - .3) / .5)) * 12).toFixed(1)}px)`
 }
 
 // ------------------------------------------------------------------ frame
