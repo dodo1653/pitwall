@@ -4,68 +4,69 @@
 <meta charset="utf-8">
 <title>Squad Wars</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Squad Wars ($SQUADS): the pump.fun $2.5M Squads Competition as a live race. Every squad is a car, its profit is its position.">
-<meta property="og:title" content="Squad Wars ($SQUADS)">
-<meta property="og:description" content="The pump.fun $2.5M Squads Competition as a live race. Every squad is a car, its profit is its position.">
-<meta property="og:image" content="https://squadsgp.vercel.app/brand/og.jpg">
+<meta name="description" content="The pump.fun $2.5M Squads Competition, live: every squad on one trading floor, their profit on their screens.">
+<meta property="og:title" content="Squad Wars">
+<meta property="og:description" content="The pump.fun $2.5M Squads Competition, live: every squad on one trading floor, their profit on their screens.">
+<meta property="og:image" content="/brand/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --ink: #f4f4f2; --dim: rgba(244,244,242,.55); --faint: rgba(244,244,242,.3); --line: rgba(244,244,242,.1); --up: #4fd18b; --down: #ff6157; --glass: rgba(9,10,13,.66); }
+  :root { --ink: #f4f4f2; --dim: rgba(244,244,242,.55); --faint: rgba(244,244,242,.3); --line: rgba(244,244,242,.1); --up: #4fd18b; --down: #ff6157; --glass: rgba(8,9,12,.62); }
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
-  canvas { display: block; }
+  canvas { display: block; cursor: grab; } canvas.drag { cursor: grabbing; }
   #ui { position: fixed; inset: 0; pointer-events: none; color: var(--ink); font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
   .glass { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 14px; }
   .site { pointer-events: auto; }
-  /* brand + countdown */
   #brand { position: absolute; top: 34px; left: 40px; }
-  #brand .n { font: 700 22px 'Titillium Web', sans-serif; letter-spacing: .3em; }
-  #brand .s { margin-top: 4px; font-size: 12px; color: var(--dim); letter-spacing: .04em; }
+  #brand .n { font: 600 19px Inter; letter-spacing: .36em; }
+  #brand .s { margin-top: 6px; font-size: 12px; color: var(--dim); }
   #brand .s i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--down); margin-right: 8px; vertical-align: 1px; animation: blink 1.6s infinite; }
   @keyframes blink { 50% { opacity: .25 } }
-  #race { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 0; padding: 0; overflow: hidden; }
+  #race { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); display: flex; overflow: hidden; }
   #race div { padding: 10px 20px; text-align: center; border-left: 1px solid var(--line); }
   #race div:first-child { border-left: 0; }
-  #race b { display: block; font: 600 18px 'Titillium Web', sans-serif; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+  #race b { display: block; font: 600 17px 'JetBrains Mono', monospace; letter-spacing: -.01em; }
   #race span { font-size: 10px; letter-spacing: .2em; color: var(--faint); text-transform: uppercase; }
-  /* timing tower */
-  #tower { position: absolute; top: 108px; left: 40px; width: 392px; padding: 10px 0 6px; }
-  #tower .hd { display: flex; justify-content: space-between; padding: 2px 16px 8px; font: 600 11px 'Titillium Web'; letter-spacing: .22em; color: var(--faint); }
-  .row { display: grid; grid-template-columns: 24px 4px 22px 1fr 78px 62px; align-items: center; gap: 8px; height: 29px; padding: 0 14px 0 12px; cursor: pointer; position: relative; }
+  #ca { position: absolute; top: 108px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 12px; padding: 7px 8px 7px 9px; border-radius: 999px; }
+  #ca.on { display: flex; }
+  #ca img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+  #ca b { font: 600 13px Inter; letter-spacing: .12em; }
+  #ca code { font: 500 12px 'JetBrains Mono'; color: var(--dim); }
+  #ca button, #ca a { height: 26px; padding: 0 12px; border-radius: 13px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); font: 600 11px Inter; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  #ca button:hover, #ca a:hover { background: rgba(255,255,255,.12); }
+  #tower { position: absolute; top: 108px; left: 40px; width: 380px; padding: 10px 0 6px; }
+  #tower .hd { display: flex; justify-content: space-between; padding: 2px 16px 8px; font: 600 10px Inter; letter-spacing: .22em; color: var(--faint); }
+  .row { display: grid; grid-template-columns: 24px 22px 1fr 78px 62px; align-items: center; gap: 9px; height: 29px; padding: 0 14px 0 12px; cursor: pointer; position: relative; }
   .row:hover, .row.sel { background: rgba(255,255,255,.05); }
-  .row .p { font: 700 14px 'Titillium Web'; text-align: right; font-variant-numeric: tabular-nums; }
-  .row .bar { width: 4px; height: 17px; border-radius: 1px; }
+  .row .p { font: 600 13px 'JetBrains Mono'; text-align: right; color: var(--dim); }
   .row img, .row .av { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #222; }
-  .row .nm { font: 600 14px 'Titillium Web'; letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row .pnl { font: 500 12px 'JetBrains Mono', monospace; text-align: right; }
-  .row .gap { font: 500 11px 'JetBrains Mono', monospace; text-align: right; color: var(--dim); }
+  .row .nm { font: 600 13px Inter; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .pnl { font: 500 12px 'JetBrains Mono'; text-align: right; }
+  .row .gap { font: 500 11px 'JetBrains Mono'; text-align: right; color: var(--faint); }
   .row .mv { position: absolute; left: 3px; font-size: 9px; }
-  #tower .more { margin: 6px 14px 4px; font: 600 11px 'Titillium Web'; letter-spacing: .18em; color: var(--dim); cursor: pointer; text-align: center; padding: 7px; border-radius: 8px; border: 1px solid var(--line); }
+  #tower .more { margin: 6px 14px 4px; font: 600 10px Inter; letter-spacing: .2em; color: var(--dim); cursor: pointer; text-align: center; padding: 7px; border-radius: 8px; border: 1px solid var(--line); }
   #tower .more:hover { color: var(--ink); }
-  /* pit wall telemetry */
   #pit { position: absolute; top: 108px; right: 40px; width: 320px; padding: 16px 16px 12px; }
-  #pit h3 { margin: 0; font: 700 14px 'Titillium Web'; letter-spacing: .26em; }
+  #pit h3 { margin: 0; font: 600 13px Inter; letter-spacing: .26em; }
   #pit .sub { font-size: 11px; color: var(--dim); margin: 4px 0 12px; }
   .coin { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
   .coin img { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; background: #1a1a1a; }
-  .coin .t { font: 600 13px 'Titillium Web'; letter-spacing: .03em; }
+  .coin .t { font: 600 13px Inter; }
   .coin .w { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
-  .coin .k { font: 700 13px 'Titillium Web'; text-align: right; }
+  .coin .k { font: 600 13px 'JetBrains Mono'; text-align: right; }
   .coin .k small { display: block; font: 500 9px Inter; letter-spacing: .14em; color: var(--faint); }
-  /* broadcast card */
-  #bc { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); display: flex; align-items: stretch; overflow: hidden; opacity: 0; transition: opacity .4s, transform .4s; }
+  #bc { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); display: flex; overflow: hidden; opacity: 0; transition: opacity .4s, transform .4s; }
   #bc.on { opacity: 1; transform: translateX(-50%) translateY(-6px); }
-  #bc .tag { padding: 12px 16px; font: 700 12px 'Titillium Web'; letter-spacing: .24em; background: var(--ink); color: #000; display: flex; align-items: center; }
-  #bc .txt { padding: 10px 20px; font: 600 17px 'Titillium Web'; letter-spacing: .04em; display: flex; align-items: center; gap: 10px; }
+  #bc .tag { padding: 12px 16px; font: 700 11px Inter; letter-spacing: .24em; background: var(--ink); color: #000; display: flex; align-items: center; }
+  #bc .txt { padding: 10px 20px; font: 600 16px Inter; display: flex; align-items: center; gap: 10px; }
   #bc .txt small { font: 500 12px 'JetBrains Mono'; color: var(--dim); }
-  /* squad card */
   #card { position: absolute; right: 40px; bottom: 60px; width: 320px; padding: 18px; opacity: 0; transform: translateY(10px); transition: .3s; pointer-events: none; }
   #card.on { opacity: 1; transform: none; pointer-events: auto; }
   #card .x { position: absolute; top: 10px; right: 10px; border: 0; background: none; color: var(--dim); font-size: 18px; cursor: pointer; }
   #card .hd { display: flex; gap: 12px; align-items: center; }
   #card .hd img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-  #card .hd b { font: 700 20px 'Titillium Web'; letter-spacing: .04em; text-transform: uppercase; }
+  #card .hd b { font: 700 19px Inter; }
   #card .hd span { display: block; font-size: 12px; color: var(--dim); }
   #card .big { font: 600 30px 'JetBrains Mono'; letter-spacing: -.03em; margin: 14px 0 2px; }
   #card .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
@@ -73,66 +74,30 @@
   #card .grid span { font-size: 9px; letter-spacing: .16em; color: var(--faint); text-transform: uppercase; }
   #full { position: absolute; inset: 90px 40px 50px 40px; padding: 18px; overflow: auto; display: none; }
   #full.on { display: block; }
-  #auto { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: 600 11px 'Titillium Web'; letter-spacing: .2em; cursor: pointer; display: none; }
+  #auto { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font: 600 10px Inter; letter-spacing: .2em; cursor: pointer; display: none; }
   #foot { position: absolute; left: 40px; bottom: 18px; font-size: 11px; color: var(--faint); }
   #stamp { position: absolute; right: 40px; bottom: 18px; font: 500 11px 'JetBrains Mono'; color: var(--faint); }
-  .tagc { position: absolute; transform: translate(-50%, -100%); text-align: center; font: 700 12px 'Titillium Web'; letter-spacing: .08em; white-space: nowrap; text-shadow: 0 1px 6px #000; }
-  .tagc i { font-style: normal; display: inline-block; padding: 1px 6px; margin-right: 6px; background: var(--ink); color: #000; border-radius: 3px; }
-  #ca { position: absolute; top: 112px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 12px; padding: 7px 8px 7px 9px; border-radius: 999px; }
-  #ca.on { display: flex; }
-  #ca img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-  #ca b { font: 700 13px 'Titillium Web'; letter-spacing: .14em; }
-  #ca code { font: 500 12px 'JetBrains Mono'; color: var(--dim); }
-  #ca button, #ca a { height: 26px; padding: 0 12px; border-radius: 13px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); font: 600 11px Inter; letter-spacing: .04em; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
-  #ca button:hover, #ca a:hover { background: rgba(255,255,255,.12); }
+  .tagp { position: absolute; transform: translate(-50%, -100%); text-align: center; white-space: nowrap; font: 600 12px Inter; text-shadow: 0 1px 8px #000; }
+  .tagp i { font-style: normal; display: inline-block; padding: 1px 6px; margin-right: 6px; background: var(--ink); color: #000; border-radius: 3px; font: 700 11px 'JetBrains Mono'; }
+  .tagp small { display: block; margin-top: 2px; font: 500 11px 'JetBrains Mono'; }
   body.capture .site, body.capture #foot { display: none !important; }
-  #podBg { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.45) 38%, rgba(0,0,0,0) 62%); opacity: 0; }
-  #pod { position: absolute; left: 80px; top: 50%; transform: translateY(-50%); width: 760px; opacity: 0; }
-  #pod .pos { font: 700 30px 'Titillium Web'; letter-spacing: .3em; color: rgba(255,255,255,.6); }
-  #pod .row1 { display: flex; align-items: center; gap: 26px; margin-top: 10px; }
-  #pod .row1 img { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,.9); }
-  #pod .nm { font: 700 92px 'Titillium Web'; letter-spacing: .01em; text-transform: uppercase; line-height: .95; }
-  #pod .pnl { margin-top: 22px; font: 600 64px 'JetBrains Mono'; letter-spacing: -.03em; color: #4fd18b; }
-  #pod .meta { margin-top: 10px; font: 500 22px Inter; color: rgba(255,255,255,.75); display: flex; gap: 22px; align-items: center; }
-  #pod .meta img { width: 30px; height: 30px; border-radius: 7px; vertical-align: middle; margin-right: 6px; object-fit: cover; }
-  #pod .prize { display: inline-block; margin-top: 18px; padding: 8px 16px; border-radius: 8px; background: #fff; color: #000; font: 700 22px 'Titillium Web'; letter-spacing: .12em; }
-  #ribbon { position: absolute; left: 0; right: 0; bottom: 34px; white-space: nowrap; overflow: hidden; font: 700 22px 'Titillium Web'; letter-spacing: .28em; color: rgba(255,255,255,.28); opacity: 0; }
-  #asof { position: absolute; right: 40px; bottom: 18px; font: 500 13px 'JetBrains Mono'; color: rgba(255,255,255,.5); opacity: 0; }
-  body.film #brand, body.film #race, body.film #stamp, body.film #bc { opacity: 0; }
-  body.film #tower, body.film #pit { display: block !important; opacity: 0; }
-  #cap { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font: 600 46px Inter, sans-serif; letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.8); }
-  #cap span { display: inline-block; margin: 0 .14em; }
-  #end { position: absolute; inset: 0; background: #000; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  #end img.lg { width: 470px; height: 470px; }
-  #end .pf { margin-top: 26px; display: flex; align-items: center; gap: 12px; font: 600 16px Inter; color: rgba(255,255,255,.8); }
-  .chip { width: 44px; height: 44px; border-radius: 11px; background: #fff; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
-  .chip img { width: 40px; height: 40px; }
-  #pfOpen { position: absolute; left: 50%; bottom: 196px; transform: translateX(-50%); opacity: 0; }
-  #pfOpen .chip { width: 64px; height: 64px; border-radius: 15px; } #pfOpen .chip img { width: 58px; height: 58px; }
-  #end .u { margin-top: 18px; font: 600 26px 'Titillium Web'; letter-spacing: .14em; }
-  #end .d { margin-top: 18px; font-size: 14px; color: rgba(255,255,255,.45); }
-  canvas { cursor: grab; } canvas.drag { cursor: grabbing; }
-  @media (max-width: 900px) { #pit, #race div:nth-child(3) { display: none; } #tower { width: auto; right: 16px; left: 16px; top: auto; bottom: 60px; max-height: 40vh; overflow: auto; } #brand { left: 16px; top: 18px; } #race { top: 70px; } }
+  @media (max-width: 900px) { #pit, #race div:nth-child(3) { display: none; } #tower { width: auto; right: 16px; left: 16px; top: auto; bottom: 60px; max-height: 40vh; overflow: auto; } #brand { left: 16px; top: 18px; } #race { top: 70px; } #ca { top: 130px; } }
 </style>
 </head>
 <body>
 <div id="ui">
-  <div id="brand"><div class="n">SQUAD WARS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
-  <div id="race" class="glass"><div><b id="cd">-</b><span>To the flag</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
-  <div id="ca" class="glass site"><img src="brand/squads_coin.png" alt=""><b id="caT">$SQUADS</b><code id="caV"></code><button id="caCopy">Copy CA</button><a id="caPf" target="_blank" rel="noopener">pump.fun</a></div>
-  <div id="tower" class="glass site"><div class="hd"><span>POS · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
-  <div id="pit" class="glass site"><h3>PIT WALL</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
-  <div id="bc" class="glass"><div class="tag" id="bcTag">OVERTAKE</div><div class="txt" id="bcTxt"></div></div>
+  <div id="brand"><div class="n" id="brandName">SQUAD WARS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
+  <div id="race" class="glass"><div><b id="cd">-</b><span>Time left</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
+  <div id="ca" class="glass site"><img src="brand/squads_coin.png" alt=""><b id="caT"></b><code id="caV"></code><button id="caCopy">Copy CA</button><a id="caPf" target="_blank" rel="noopener">pump.fun</a></div>
+  <div id="tower" class="glass site"><div class="hd"><span>RANK · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
+  <div id="pit" class="glass site"><h3>THE DESKS</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
+  <div id="bc" class="glass"><div class="tag" id="bcTag"></div><div class="txt" id="bcTxt"></div></div>
   <div id="card" class="glass site"></div>
   <div id="full" class="glass site"></div>
   <div id="tags"></div>
   <button id="auto" class="site">AUTO CAMERA</button>
   <div id="foot">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
   <div id="stamp"></div>
-  <div id="cap"></div>
-  <div id="podBg"></div><div id="pod"></div><div id="ribbon"></div><div id="asof"></div>
-  <div id="pfOpen"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt="pump.fun"></span></div>
-  <div id="end"><img class="lg" src="brand/squads_logo_text.png" alt=""><div class="u">$SQUADS · squadsgp.vercel.app</div><div class="pf"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt=""></span>Live from the pump.fun Squads Competition</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
 </div>
 <script>window.READY = false</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/" } }</script>
@@ -144,6 +109,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { Reflector } from 'three/addons/objects/Reflector.js'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import PROJECT from './project.config.js'
 
 const Q = new URLSearchParams(location.search)
@@ -151,13 +117,10 @@ const CAPTURE = Q.get('capture')
 const $ = (id) => document.getElementById(id)
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x))
 const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2 }
-const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) } return (h >>> 0) / 4294967296 }
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const usd = (v) => { const a = Math.abs(v), s = v < 0 ? '-' : '+'; return s + '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e3 ? (a / 1e3).toFixed(1) + 'K' : a.toFixed(0)) }
 const usdPlain = (v) => { const a = Math.abs(v); return '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e3 ? (a / 1e3).toFixed(1) + 'K' : a.toFixed(0)) }
-// team colours: a refined palette, one per squad (stable by name)
-const PALETTE = ['#f4f1ea', '#ff5a3c', '#3d8bff', '#22c08a', '#ffb31f', '#c86bff', '#26d0e0', '#ff4f8b', '#9fe04a', '#ff8a3d', '#6f7cff', '#e8d27a']
-const colorOf = (name) => PALETTE[Math.floor(hash(String(name)) * PALETTE.length)]
+document.title = PROJECT.name; $('brandName').textContent = PROJECT.name.toUpperCase()
 
 // ------------------------------------------------------------------ renderer
 let W = innerWidth, H = innerHeight
@@ -166,225 +129,269 @@ renderer.setPixelRatio(CAPTURE ? 1 : Math.min(devicePixelRatio, 1.5)); renderer.
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1
 document.body.prepend(renderer.domElement)
 const scene = new THREE.Scene()
-const FOG = new THREE.Color().setRGB(.006, .007, .01, THREE.LinearSRGBColorSpace)
-scene.background = FOG; scene.fog = new THREE.FogExp2(FOG, .0028)
-const camera = new THREE.PerspectiveCamera(34, W / H, .5, 4000)
-scene.add(new THREE.HemisphereLight(0x4a5468, 0x050505, .55))
-const key = new THREE.DirectionalLight(0x9fb2d0, .5); key.position.set(-200, 260, 120); scene.add(key)
+const FOG = new THREE.Color().setRGB(.008, .009, .012, THREE.LinearSRGBColorSpace)
+scene.background = FOG; scene.fog = new THREE.FogExp2(FOG, .028)
+const camera = new THREE.PerspectiveCamera(36, W / H, .05, 300)
+scene.add(new THREE.HemisphereLight(0x39404c, 0x050506, .22))
 
-// ------------------------------------------------------------------ the circuit: a closed spline with a real GP rhythm (straight, hairpin, esses)
-const CP = [[-260, 0], [-120, -10], [60, -14], [200, -40], [262, -110], [230, -170], [150, -160], [110, -110], [40, -96], [-10, -140], [-80, -190], [-170, -170], [-230, -120], [-300, -60]]
-const track = new THREE.CatmullRomCurve3(CP.map(([x, z]) => new THREE.Vector3(x, 0, z + 80)), true, 'centripetal', .5)
-const LEN = track.getLength()
-const N = 1600
-const tp = track.getSpacedPoints(N)
-const frames = tp.map((p, i) => { const a = tp[(i + 1) % N], b = tp[(i - 1 + N) % N]; const t = a.clone().sub(b).normalize(); return { p, t, n: new THREE.Vector3(-t.z, 0, t.x) } })
-const at = (s) => { s = ((s % LEN) + LEN) % LEN; const f = s / LEN * N, i = Math.floor(f) % N, r = f - Math.floor(f), A = frames[i], B = frames[(i + 1) % N]; return { p: A.p.clone().lerp(B.p, r), t: A.t.clone().lerp(B.t, r).normalize(), n: A.n.clone().lerp(B.n, r).normalize() } }
-const RW = 15
-// wet ground mirror + a dark ground plane that lets reflections through near the track
+// ------------------------------------------------------------------ the room: polished concrete, a leaderboard wall, tall windows onto the city
+const ROOM = { x0: -21, x1: 21, z0: -16, z1: 15, h: 8 }
 {
-  const m = new Reflector(new THREE.PlaneGeometry(4000, 4000), { textureWidth: 768, textureHeight: 432, color: 0x6a6d74 })
-  m.rotation.x = -Math.PI / 2; m.position.y = -.05; scene.add(m)
-  const g = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshStandardMaterial({ color: 0x050607, roughness: .9, transparent: true, opacity: .93 }))
-  g.rotation.x = -Math.PI / 2; g.position.y = -.02; scene.add(g)
-}
-// the road ribbon (semi-transparent so the mirror shows: wet asphalt), kerbs on the tight corners, edge light strips
-function ribbon(off0, off1, y, mat, every = 1, filter = null) {
-  const pos = [], idx = []
-  for (let i = 0; i <= N; i += every) {
-    const f = frames[i % N]
-    const a = f.p.clone().addScaledVector(f.n, off0), b = f.p.clone().addScaledVector(f.n, off1)
-    pos.push(a.x, y, a.z, b.x, y, b.z)
+  const m = new Reflector(new THREE.PlaneGeometry(60, 60), { textureWidth: 1024, textureHeight: 576, color: 0x6c6f75 })
+  m.rotation.x = -Math.PI / 2; m.position.y = -.01; scene.add(m)
+  // concrete: a soft noise texture over the mirror, mostly opaque so reflections stay subtle and blurred
+  const cv = document.createElement('canvas'); cv.width = cv.height = 512
+  const g = cv.getContext('2d'); g.fillStyle = '#1b1c1f'; g.fillRect(0, 0, 512, 512)
+  for (let i = 0; i < 9000; i++) { const v = 20 + Math.random() * 16; g.fillStyle = `rgba(${v},${v},${v + 2},.35)`; g.fillRect(Math.random() * 512, Math.random() * 512, 1 + Math.random() * 3, 1 + Math.random() * 3) }
+  g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; for (let k = 0; k <= 512; k += 128) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 512); g.stroke(); g.beginPath(); g.moveTo(0, k); g.lineTo(512, k); g.stroke() }
+  const tx = new THREE.CanvasTexture(cv); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(10, 10); tx.colorSpace = THREE.SRGBColorSpace
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ map: tx, roughness: .6, transparent: true, opacity: .86 }))
+  fl.rotation.x = -Math.PI / 2; scene.add(fl)
+  const wallM = new THREE.MeshStandardMaterial({ color: 0x0e0f12, roughness: .9 })
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(44, ROOM.h), wallM); back.position.set(0, ROOM.h / 2, ROOM.z0); scene.add(back)
+  const right = new THREE.Mesh(new THREE.PlaneGeometry(34, ROOM.h), wallM); right.rotation.y = -Math.PI / 2; right.position.set(ROOM.x1, ROOM.h / 2, 0); scene.add(right)
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(44, 34), new THREE.MeshStandardMaterial({ color: 0x08090b, roughness: 1 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, ROOM.h, 0); scene.add(ceil)
+  // concrete columns
+  for (const x of [-10.5, 0, 10.5]) for (const z of [-11.5, 2.5]) { const c = new THREE.Mesh(new THREE.BoxGeometry(.7, ROOM.h, .7), wallM); c.position.set(x, ROOM.h / 2, z); if (x !== 0) scene.add(c) }
+  // the city through tall windows on the left: bokeh lights far outside, dark mullions in the glass
+  const cc = document.createElement('canvas'); cc.width = 2048; cc.height = 512
+  const cg = cc.getContext('2d'); const sky = cg.createLinearGradient(0, 0, 0, 512); sky.addColorStop(0, '#05070c'); sky.addColorStop(.7, '#0d0f16'); sky.addColorStop(1, '#1a130e'); cg.fillStyle = sky; cg.fillRect(0, 0, 2048, 512)
+  for (let i = 0; i < 1400; i++) {
+    const x = Math.random() * 2048, y = 180 + Math.pow(Math.random(), .6) * 330, r = 1 + Math.random() * 5
+    const warm = Math.random() < .7, a = .15 + Math.random() * .5
+    const gr = cg.createRadialGradient(x, y, 0, x, y, r * 2.4); gr.addColorStop(0, warm ? `rgba(255,190,120,${a})` : `rgba(170,200,255,${a})`); gr.addColorStop(1, 'rgba(0,0,0,0)')
+    cg.fillStyle = gr; cg.fillRect(x - r * 3, y - r * 3, r * 6, r * 6)
   }
-  const n = pos.length / 6
-  for (let i = 0; i < n - 1; i++) { if (filter && !filter(i * every)) continue; idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2) }
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals()
-  const m = new THREE.Mesh(g, mat); scene.add(m); return m
-}
-ribbon(-RW / 2, RW / 2, .01, new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: .42, metalness: .1, transparent: true, opacity: .78, side: THREE.DoubleSide }))
-const curv = frames.map((f, i) => f.t.angleTo(frames[(i + 6) % N].t))
-const tight = (i) => curv[i % N] > .045
-ribbon(RW / 2, RW / 2 + 1.6, .03, new THREE.MeshBasicMaterial({ color: new THREE.Color(.55, .08, .06), side: THREE.DoubleSide }), 1, (i) => tight(i) && Math.floor(i / 6) % 2 === 0)
-ribbon(-RW / 2 - 1.6, -RW / 2, .03, new THREE.MeshBasicMaterial({ color: new THREE.Color(.55, .08, .06), side: THREE.DoubleSide }), 1, (i) => tight(i) && Math.floor(i / 6) % 2 === 0)
-ribbon(RW / 2, RW / 2 + 1.6, .03, new THREE.MeshBasicMaterial({ color: new THREE.Color(.5, .5, .5), side: THREE.DoubleSide }), 1, (i) => tight(i) && Math.floor(i / 6) % 2 === 1)
-ribbon(-RW / 2 - 1.6, -RW / 2, .03, new THREE.MeshBasicMaterial({ color: new THREE.Color(.5, .5, .5), side: THREE.DoubleSide }), 1, (i) => tight(i) && Math.floor(i / 6) % 2 === 1)
-const ledMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(.9, .95, 1.1), side: THREE.DoubleSide })
-ribbon(RW / 2 + 2.6, RW / 2 + 2.9, .05, ledMat); ribbon(-RW / 2 - 2.9, -RW / 2 - 2.6, .05, ledMat)
-// start / finish: a chequered band and a gantry of lights
-{
-  const f = frames[0], cv = document.createElement('canvas'); cv.width = 64; cv.height = 8
-  const g = cv.getContext('2d'); for (let x = 0; x < 64; x++) for (let y = 0; y < 8; y++) { g.fillStyle = (x + y) % 2 ? '#111' : '#cfcfcf'; g.fillRect(x, y, 1, 1) }
-  const tx = new THREE.CanvasTexture(cv); tx.magFilter = THREE.NearestFilter
-  const band = new THREE.Mesh(new THREE.PlaneGeometry(RW, 2.4), new THREE.MeshBasicMaterial({ map: tx }))
-  band.position.copy(f.p).setY(.04); band.rotation.x = -Math.PI / 2; band.rotation.z = -Math.atan2(f.t.z, f.t.x); scene.add(band)
-  const gm = new THREE.MeshStandardMaterial({ color: 0x15171b, roughness: .5, metalness: .6 })
-  for (const s of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(.6, 11, .6), gm); post.position.copy(f.p).addScaledVector(f.n, s * (RW / 2 + 3.5)).setY(5.5); scene.add(post) }
-  const beam = new THREE.Mesh(new THREE.BoxGeometry(RW + 8, 1.1, 1.1), gm); beam.position.copy(f.p).setY(11); beam.rotation.y = -Math.atan2(f.n.z, f.n.x); scene.add(beam)
-  for (let i = 0; i < 5; i++) { const l = new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 10), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, .3, .25) })); l.position.copy(f.p).addScaledVector(f.n, (i - 2) * 1.8).setY(10.3); scene.add(l) }
-}
-// floodlight towers around the circuit: tall masts with a lamp bank, pools of light on the track
-{
-  const mastM = new THREE.MeshStandardMaterial({ color: 0x101114, roughness: .6, metalness: .5 })
-  const lampM = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 2.3, 2.5) })
-  const pc = document.createElement('canvas'); pc.width = pc.height = 128
-  const pg = pc.getContext('2d'), gr = pg.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(210,220,255,.13)'); gr.addColorStop(1, 'rgba(210,220,255,0)'); pg.fillStyle = gr; pg.fillRect(0, 0, 128, 128)
-  const poolM = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(pc), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })
-  for (let k = 0; k < 22; k++) {
-    const f = frames[Math.floor(k / 22 * N)], side = k % 2 ? 1 : -1
-    const base = f.p.clone().addScaledVector(f.n, side * (RW / 2 + 14))
-    const mast = new THREE.Mesh(new THREE.CylinderGeometry(.22, .32, 30, 8), mastM); mast.position.copy(base).setY(15); scene.add(mast)
-    const lamp = new THREE.Mesh(new THREE.BoxGeometry(2.2, .5, .3), lampM); lamp.position.copy(base).setY(30.5); lamp.lookAt(f.p.clone().setY(0)); scene.add(lamp)
-    const pool = new THREE.Mesh(new THREE.PlaneGeometry(46, 46), poolM); pool.rotation.x = -Math.PI / 2; pool.position.copy(f.p).addScaledVector(f.n, side * 4).setY(.06); scene.add(pool)
-  }
-}
-// a grandstand along the main straight: tiers of dark seating with a lit fascia
-{
-  const f = frames[Math.floor(N * .1)], m = new THREE.MeshStandardMaterial({ color: 0x0c0d10, roughness: .8 })
-  for (let i = 0; i < 6; i++) {
-    const tier = new THREE.Mesh(new THREE.BoxGeometry(160, 2, 5), m)
-    tier.position.copy(f.p).addScaledVector(f.n, -(RW / 2 + 22 + i * 4.6)).setY(1 + i * 2.2); tier.rotation.y = -Math.atan2(f.t.z, f.t.x); scene.add(tier)
-  }
-  // (no fascia strip: it read as a stray line from the air)
+  const ct = new THREE.CanvasTexture(cc); ct.colorSpace = THREE.SRGBColorSpace
+  const city = new THREE.Mesh(new THREE.PlaneGeometry(60, 15), new THREE.MeshBasicMaterial({ map: ct, color: new THREE.Color(1.5, 1.5, 1.5), fog: false }))
+  city.rotation.y = Math.PI / 2; city.position.set(-34, 5, 0); scene.add(city)
+  for (let z = -15; z <= 15; z += 2.6) { const mu = new THREE.Mesh(new THREE.BoxGeometry(.18, ROOM.h, .18), wallM); mu.position.set(ROOM.x0, ROOM.h / 2, z); scene.add(mu) }
+  for (const y of [.02, ROOM.h - .02, 3.2]) { const tr = new THREE.Mesh(new THREE.BoxGeometry(.2, .16, 32), wallM); tr.position.set(ROOM.x0, y, 0); scene.add(tr) }
+  // long linear pendants over the aisles, softly lit
+  const ledM = new THREE.MeshBasicMaterial({ color: new THREE.Color(.55, .56, .6) })
 }
 
-// ------------------------------------------------------------------ cars: a sleek light capsule per squad + a fading trail
-const CARS = 20, TRAIL = 46
-const cars = []
-const prof = new THREE.Shape()
-prof.moveTo(-2.4, .18); prof.lineTo(2.5, .18); prof.lineTo(2.55, .32); prof.quadraticCurveTo(1.4, .5, .5, .66)
-prof.quadraticCurveTo(-.1, 1.12, -.75, .96); prof.lineTo(-1.9, .8); prof.lineTo(-2.4, .78); prof.lineTo(-2.4, .18)
-const bodyGeo = new THREE.ExtrudeGeometry(prof, { depth: 1.7, bevelEnabled: true, bevelThickness: .08, bevelSize: .06, bevelSegments: 2, curveSegments: 10 })
-bodyGeo.translate(0, 0, -.85)
-const cabGeo = new THREE.BoxGeometry(.5, .5, 1.9); cabGeo.translate(-2.2, 1.12, 0)             // rear wing
-const stripeGeo = new THREE.BoxGeometry(3.4, .05, .34); stripeGeo.translate(.2, .86, 0)
-const sideGeo = new THREE.BoxGeometry(3.8, .12, 1.86); sideGeo.translate(.1, .42, 0)
-const tailGeo = new THREE.BoxGeometry(.06, .12, 1.3); tailGeo.translate(-2.47, .62, 0)
-const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0b0c0f, roughness: .28, metalness: .7 })
-const tailMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, .08, .05) })
-const trailMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
-  vertexShader: 'attribute float a; attribute vec3 col; varying float vA; varying vec3 vC; void main(){ vA = a; vC = col; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
-  fragmentShader: 'varying float vA; varying vec3 vC; void main(){ gl_FragColor = vec4(vC * vA, vA); }' })
-for (let i = 0; i < CARS; i++) {
-  const body = new THREE.Group()
-  const stripe = new THREE.Mesh(stripeGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }))
-  const side = new THREE.Mesh(sideGeo, stripe.material)
-  body.add(new THREE.Mesh(bodyGeo, bodyMat), new THREE.Mesh(cabGeo, bodyMat), stripe, side, new THREE.Mesh(tailGeo, tailMat))
-  for (const z of [-.62, .62]) { const hl = new THREE.Mesh(new THREE.SphereGeometry(.13, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 5, 5.4) })); hl.position.set(2.48, .3, z * .9); body.add(hl) }
-  const head = new THREE.Object3D()
-  body.userData.stripe = stripe
-  scene.add(body, head)
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRAIL * 2 * 3), 3))
-  g.setAttribute('a', new THREE.BufferAttribute(new Float32Array(TRAIL * 2), 1))
-  g.setAttribute('col', new THREE.BufferAttribute(new Float32Array(TRAIL * 2 * 3), 3))
-  const idx = []; for (let k = 0; k < TRAIL - 1; k++) idx.push(k * 2, k * 2 + 1, k * 2 + 2, k * 2 + 1, k * 2 + 3, k * 2 + 2); g.setIndex(idx)
-  const trail = new THREE.Mesh(g, trailMat); trail.frustumCulled = false; scene.add(trail)
-  cars.push({ body, head, trail, s: 0, off: 0, lane: 0, color: new THREE.Color(1, 1, 1), squad: null })
+// warm ceiling spots: soft pools of light down the aisles give the room depth
+for (const [x, z] of [[0, -11], [0, -3], [0, 5], [-8.4, -7], [8.4, -7], [-8.4, 3], [8.4, 3]]) {
+  const sp = new THREE.SpotLight(0xffd2a0, 22, 12, .42, .8, 1.6); sp.position.set(x, ROOM.h - .2, z); sp.target.position.set(x, 0, z); scene.add(sp, sp.target)
+  const can = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, .08, 18), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.3, 1) })); can.position.set(x, ROOM.h - .04, z); scene.add(can)
+}
+
+// ------------------------------------------------------------------ the leaderboard wall
+const wallCv = document.createElement('canvas'); wallCv.width = 2400; wallCv.height = 600
+const wallTex = new THREE.CanvasTexture(wallCv); wallTex.colorSpace = THREE.SRGBColorSpace; wallTex.anisotropy = 8
+{
+  const s = new THREE.Mesh(new THREE.PlaneGeometry(24, 6), new THREE.MeshBasicMaterial({ map: wallTex, color: new THREE.Color(.92, .92, .92) }))
+  s.position.set(0, 4.2, ROOM.z0 + .1); scene.add(s)
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(24.4, 6.4, .1), new THREE.MeshStandardMaterial({ color: 0x050506, roughness: .4, metalness: .6 })); frame.position.set(0, 4.2, ROOM.z0 + .01); scene.add(frame)
+  const glow = new THREE.PointLight(0x9fb8d8, 8, 22, 1.6); glow.position.set(0, 4.2, ROOM.z0 + 3); scene.add(glow)
+}
+function drawWall() {
+  const g = wallCv.getContext('2d'), e = board.entries
+  g.fillStyle = '#040507'; g.fillRect(0, 0, 2400, 600)
+  g.fillStyle = 'rgba(255,255,255,.9)'; g.font = '600 34px Inter'; g.textBaseline = 'middle'
+  g.fillText((PROJECT.name || 'Squad Wars').toUpperCase().split('').join(' '), 60, 62)
+  g.fillStyle = 'rgba(255,255,255,.45)'; g.font = '500 24px Inter'; g.fillText('pump.fun $2,500,000 Squads Competition', 60, 104)
+  g.textAlign = 'right'; g.fillStyle = 'rgba(255,255,255,.85)'; g.font = '600 34px JetBrains Mono'; g.fillText(cdText(), 2340, 62)
+  g.fillStyle = 'rgba(255,255,255,.4)'; g.font = '500 20px Inter'; g.fillText('TIME LEFT', 2340, 104); g.textAlign = 'left'
+  g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(60, 140, 2280, 2)
+  for (let i = 0; i < 10 && i < e.length; i++) {
+    const x = e[i], col = i < 5 ? 60 : 1240, y = 196 + (i % 5) * 80
+    g.fillStyle = i < 3 ? '#fff' : 'rgba(255,255,255,.55)'; g.font = '600 38px JetBrains Mono'; g.fillText(String(x.rank).padStart(2, '0'), col, y)
+    g.fillStyle = '#fff'; g.font = `${i < 3 ? 700 : 600} 40px Inter`; g.fillText(x.name.slice(0, 22), col + 100, y)
+    g.textAlign = 'right'; g.fillStyle = x.pnl >= 0 ? '#4fd18b' : '#ff6157'; g.font = '600 40px JetBrains Mono'; g.fillText(usd(x.pnl), col + 1040, y); g.textAlign = 'left'
+    g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(col, y + 38, 1040, 1)
+  }
+  wallTex.needsUpdate = true
+}
+const cdText = () => { const ms = Math.max(0, Date.parse(board.competition.endsAt) - Date.now()); const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60; return `${d}D ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` }
+
+// ------------------------------------------------------------------ desk pods: the top 20 squads, four traders each, one wide screen across their monitors
+const PODS = 20, SEATS = 4, SEAT_W = 1.6, MON = 2
+const COLS = [-12.6, -4.2, 4.2, 12.6], ROWS = [-9.6, -5.2, -.8, 3.6, 8]
+const podPos = (k) => { const r = Math.floor(k / 4), c = [1, 2, 0, 3][k % 4]; return new THREE.Vector3(COLS[c], 0, ROWS[r]) }   // ranks 1-2 in the middle of the front row
+const darkM = new THREE.MeshStandardMaterial({ color: 0x0b0c0e, roughness: .55, metalness: .2 })
+const deskM = new THREE.MeshStandardMaterial({ color: 0x17120e, roughness: .38, metalness: .05 })
+const bodyM = new THREE.MeshStandardMaterial({ color: 0x060709, roughness: .7 })
+const skinM = new THREE.MeshStandardMaterial({ color: 0x0d0b0a, roughness: .75 })
+function seatedTrader(x, z, seed) {
+  // seen from behind: chair back, shoulders and head above it, arms reaching to the keyboard
+  const g = []
+  const lean = (seed % 3 - 1) * .05, turn = ((seed * 7) % 5 - 2) * .06
+  const back = new THREE.BoxGeometry(.52, .66, .07); back.translate(0, .86, .3); g.push([back, darkM])
+  const seatG = new THREE.BoxGeometry(.5, .07, .48); seatG.translate(0, .48, .08); g.push([seatG, darkM])
+  const pole = new THREE.CylinderGeometry(.03, .03, .42, 8); pole.translate(0, .24, .1); g.push([pole, darkM])
+  const torso = new THREE.CapsuleGeometry(.19, .34, 6, 12); torso.scale(1.15, 1, .8); torso.rotateX(-.12 + lean); torso.translate(0, .9, .14); g.push([torso, bodyM])
+  const neck = new THREE.CylinderGeometry(.055, .065, .1, 10); neck.translate(0, 1.23, .1); g.push([neck, skinM])
+  const head = new THREE.SphereGeometry(.112, 20, 14); head.scale(.92, 1.08, 1); head.rotateY(turn); head.translate(0, 1.36, .07); g.push([head, skinM])
+  const hair = new THREE.SphereGeometry(.118, 20, 14, 0, Math.PI * 2, 0, Math.PI * .55); hair.scale(.94, 1.06, 1.02); hair.translate(0, 1.37, .075); g.push([hair, bodyM])
+  for (const s of [-1, 1]) { const arm = new THREE.CapsuleGeometry(.055, .42, 4, 8); arm.rotateX(1.15); arm.rotateZ(s * .22); arm.translate(s * .22, 1.0, -.14); g.push([arm, bodyM]) }
+  return g.map(([geo, m]) => { geo.translate(x, 0, z); return [geo, m] })
+}
+const pods = []
+for (let k = 0; k < PODS; k++) {
+  const P = podPos(k), grp = new THREE.Group(); grp.position.copy(P); scene.add(grp)
+  const L = SEATS * SEAT_W
+  // desk: walnut top, a dark modesty panel, two legs
+  const top = new THREE.Mesh(new THREE.BoxGeometry(L + .2, .05, .92), deskM); top.position.set(0, .75, -.42); grp.add(top)
+  const pan = new THREE.Mesh(new THREE.BoxGeometry(L, .62, .04), darkM); pan.position.set(0, .42, -.86); grp.add(pan)
+  for (const s of [-1, 1]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(.05, .72, .8), darkM); leg.position.set(s * L / 2, .37, -.42); grp.add(leg) }
+  // the screen strip: 8 monitors, one canvas across all of them
+  const cv = document.createElement('canvas'); cv.width = 2560; cv.height = 190
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8
+  const N = SEATS * MON, mw = .58, mh = .34, geos = []
+  for (let i = 0; i < N; i++) {
+    const g = new THREE.PlaneGeometry(mw, mh), uv = g.attributes.uv
+    for (let j = 0; j < uv.count; j++) uv.setX(j, (i + uv.getX(j)) / N)
+    const cx = -L / 2 + SEAT_W / 2 + Math.floor(i / 2) * SEAT_W + (i % 2 ? .3 : -.3)
+    g.rotateY((i % 2 ? -1 : 1) * .12); g.translate(cx, 1.13, -.72); geos.push(g)
+  }
+  const screens = new THREE.Mesh(mergeGeometries(geos), new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(1.6, 1.6, 1.6) })); grp.add(screens)
+  const bez = []; for (let i = 0; i < N; i++) { const b = new THREE.BoxGeometry(mw + .03, mh + .03, .03); b.rotateY((i % 2 ? -1 : 1) * .12); b.translate(-L / 2 + SEAT_W / 2 + Math.floor(i / 2) * SEAT_W + (i % 2 ? .3 : -.3), 1.13, -.74); bez.push(b); const st = new THREE.BoxGeometry(.04, .22, .04); st.translate(-L / 2 + SEAT_W / 2 + Math.floor(i / 2) * SEAT_W + (i % 2 ? .3 : -.3), .88, -.76); bez.push(st) }
+  grp.add(new THREE.Mesh(mergeGeometries(bez), darkM))
+  // keyboards glow faintly
+  const kb = []; for (let s = 0; s < SEATS; s++) { const b = new THREE.BoxGeometry(.44, .02, .15); b.translate(-L / 2 + SEAT_W / 2 + s * SEAT_W, .785, -.3); kb.push(b) }
+  grp.add(new THREE.Mesh(mergeGeometries(kb), darkM))
+  // the traders
+  const parts = new Map()
+  for (let s = 0; s < SEATS; s++) for (const [geo, m] of seatedTrader(-L / 2 + SEAT_W / 2 + s * SEAT_W, .25, k * 4 + s)) { if (!parts.has(m)) parts.set(m, []); parts.get(m).push(geo) }
+  const people = []; for (const [m, gs] of parts) { const mesh = new THREE.Mesh(mergeGeometries(gs), m); grp.add(mesh); people.push(mesh) }
+  // the screens light the desk, the traders and the floor in the squad's colour
+  const light = new THREE.PointLight(0xffffff, 3, 5.5, 1.7); light.position.set(0, 1.15, -.35); grp.add(light)
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(L + 3, 4), poolMat()); pool.rotation.x = -Math.PI / 2; pool.position.set(0, .015, -.2); grp.add(pool)
+  pods.push({ k, P, grp, cv, tex, light, pool, people, entry: null, drawnFor: '' })
+}
+function poolMat() {
+  const c = document.createElement('canvas'); c.width = c.height = 128
+  const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128)
+  return new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, color: 0x000000 })
+}
+// one squad's terminal, drawn across its eight screens
+function drawPod(p) {
+  const e = p.entry, g = p.cv.getContext('2d'), w = 2560, h = 190, sw = 320, up = e.pnl >= 0, col = up ? '#4fd18b' : '#ff6157'
+  const panel = (i, fn) => { g.save(); g.translate(i * sw, 0); g.fillStyle = '#05070a'; g.fillRect(0, 0, sw, h); g.beginPath(); g.rect(0, 0, sw, h); g.clip(); fn(); g.restore() }
+  const fit = (txt, max, size, weight = 700, fam = 'Inter') => { let f = size; do { g.font = `${weight} ${f}px ${fam}`; f -= 2 } while (g.measureText(txt).width > max && f > 14); return txt }
+  const label = (txt, y = 34) => { g.fillStyle = 'rgba(255,255,255,.45)'; g.font = '600 17px Inter'; g.fillText(txt, 22, y) }
+  g.textBaseline = 'middle'
+  panel(0, () => { label('RANK'); g.fillStyle = '#fff'; g.font = '700 92px JetBrains Mono'; g.fillText('#' + e.rank, 18, 116) })
+  panel(1, () => { label('SQUAD'); g.fillStyle = '#fff'; g.fillText(fit(e.name, sw - 40, 50), 22, 104); g.fillStyle = 'rgba(255,255,255,.5)'; g.font = '500 18px Inter'; g.fillText(e.members + ' traders', 22, 156) })
+  panel(2, () => { label('PROFIT'); g.fillStyle = col; g.fillText(fit(usd(e.pnl), sw - 40, 66, 700, 'JetBrains Mono'), 20, 112) })
+  panel(3, () => {
+    const tot = Math.abs(e.realized) + Math.abs(e.unrealized) || 1
+    for (const [i, lab, v] of [[0, 'REALIZED', e.realized], [1, 'UNREALIZED', e.unrealized]]) {
+      const y = 40 + i * 74
+      g.fillStyle = 'rgba(255,255,255,.45)'; g.font = '600 16px Inter'; g.fillText(lab, 22, y)
+      g.fillStyle = '#fff'; g.font = '600 22px JetBrains Mono'; g.fillText(usd(v), 22, y + 30)
+      g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(150, y + 24, 148, 10); g.fillStyle = v >= 0 ? '#4fd18b' : '#ff6157'; g.fillRect(150, y + 24, 148 * Math.abs(v) / tot, 10)
+    }
+  })
+  ;(e.top || []).slice(0, 3).forEach((c, i) => panel(4 + i, () => { label('HOLDING'); g.fillStyle = '#fff'; g.fillText(fit('$' + (c.symbol || ''), sw - 40, 54, 700, 'JetBrains Mono'), 22, 100); g.fillStyle = 'rgba(255,255,255,.45)'; g.font = '500 16px Inter'; g.fillText(fit(c.name || '', sw - 44, 16, 500), 22, 150) }))
+  for (let i = 4 + Math.min(3, (e.top || []).length); i < 7; i++) panel(i, () => label('HOLDING'))
+  panel(7, () => { label('POSITIONS'); g.fillStyle = '#fff'; g.font = '700 70px JetBrains Mono'; g.fillText(String(e.positions), 20, 108); g.fillStyle = 'rgba(255,255,255,.45)'; g.font = '500 16px Inter'; g.fillText(e.spentSol.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' SOL spent', 22, 160) })
+  for (let i = 0; i < 8; i++) { g.fillStyle = col; g.globalAlpha = .55; g.fillRect(i * sw, h - 4, sw, 4); g.globalAlpha = 1 }
+  p.tex.needsUpdate = true
+}
+function updatePods() {
+  for (const p of pods) {
+    const e = board.entries[p.k]; p.entry = e; p.grp.visible = !!e
+    if (!e) continue
+    const key = e.id + e.pnl + e.rank
+    if (p.drawnFor !== key) { drawPod(p); p.drawnFor = key }
+    const up = e.pnl >= 0, rankK = 1 - p.k / PODS
+    const c = new THREE.Color(up ? 0x8fffc0 : 0xff8a80).lerp(new THREE.Color(0xdfe6ff), .62)
+    p.light.color.copy(c); p.light.intensity = 1.6 + 3.2 * rankK
+    p.pool.material.color.copy(c).multiplyScalar(.12 + .22 * rankK)
+  }
 }
 
 // ------------------------------------------------------------------ post
 const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
-const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), .9, .55, .72); composer.addPass(bloom)
+const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), .7, .6, .82); composer.addPass(bloom)
 composer.addPass(new OutputPass())
 const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, t: { value: 0 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float t; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)) + t * 7.13) * 43758.5453); }
-    void main(){ vec2 d = vUv - .5; vec3 c = texture2D(tDiffuse, vUv).rgb; c *= 1. - dot(d, d) * 1.1; c += (h(vUv * 1000.) - .5) * .03; gl_FragColor = vec4(c, 1.); }` })
+    void main(){ vec2 d = vUv - .5; vec3 c = texture2D(tDiffuse, vUv).rgb; c *= 1. - dot(d, d) * 1.15; c = mix(c, c * vec3(1.02, 1., .96), .5); c += (h(vUv * 1000.) - .5) * .028; gl_FragColor = vec4(c, 1.); }` })
 composer.addPass(grade)
 
-// ------------------------------------------------------------------ data: the leaderboard (live endpoint when available, else the saved snapshot)
-let board = null, prevBoard = null, events = [], selected = null, showN = 20
+// ------------------------------------------------------------------ data
+let board = null, prevBoard = null, events = [], selected = null
 async function load() {
   let d = null
-  const src = CAPTURE ? Q.get('board') : '/api/board'          // captures can use the live standings: &board=https://squadsgp.vercel.app/api/board
+  const src = CAPTURE ? Q.get('board') : '/api/board'
   if (src) { try { const r = await fetch(src, { cache: 'no-store' }); if (r.ok) d = await r.json() } catch {} }
   if (!d || !d.entries) d = await (await fetch('data/snapshot.json')).json()
   if (!d.competition || !d.competition.endsAt) d.competition = (await (await fetch('data/snapshot.json')).json()).competition
   if (board && d.builtAtMs !== board.builtAtMs) { prevBoard = board; diff(prevBoard, d) }
   board = d
-  if (!cars[0].squad) for (const c of cars) c.off = targetOffset(cars.indexOf(c))
 }
-// overtakes and the hour's biggest gain, from consecutive boards
 function diff(a, b) {
   const pa = new Map(a.entries.map((e) => [e.id, e])), now = performance.now()
-  for (const e of b.entries.slice(0, CARS)) {
+  for (const e of b.entries.slice(0, PODS)) {
     const o = pa.get(e.id); if (!o) continue
-    if (e.rank < o.rank && e.rank <= 10) {
-      const passed = b.entries.find((x) => x.rank === e.rank + 1)
-      events.push({ at: now, tag: e.rank === 1 ? 'NEW LEADER' : 'OVERTAKE', text: `${e.name.toUpperCase()}${passed ? ' passes ' + passed.name.toUpperCase() : ''}`, small: `P${o.rank} → P${e.rank}` })
-    }
+    if (e.rank < o.rank && e.rank <= 10) { const passed = b.entries.find((x) => x.rank === e.rank + 1); events.push({ at: now, tag: e.rank === 1 ? 'NEW LEADER' : 'MOVES UP', text: `${e.name}${passed ? ' passes ' + passed.name : ''}`, small: `#${o.rank} → #${e.rank}` }) }
   }
   let best = null
   for (const e of b.entries) { const o = pa.get(e.id); if (o && (!best || e.pnl - o.pnl > best.d)) best = { e, d: e.pnl - o.pnl } }
-  if (best && best.d > 2000) events.push({ at: now, tag: 'FASTEST LAP', text: best.e.name.toUpperCase(), small: usd(best.d) + ' since the last update' })
-}
-// spacing on track: the gap in dollars, compressed so the top 20 fit in two thirds of a lap
-function targetOffset(rank) {
-  if (!board) return rank * 9
-  const e = board.entries
-  let off = 0
-  for (let i = 1; i <= rank && i < e.length; i++) off += 6.5 + 22 * Math.log10(1 + Math.max(0, e[i - 1].pnl - e[i].pnl) / 800)
-  return Math.min(off, LEN * .66 - (CARS - rank) * 2)
+  if (best && best.d > 2000) events.push({ at: now, tag: 'BIGGEST MOVE', text: best.e.name, small: usd(best.d) + ' since the last update' })
 }
 
-// ------------------------------------------------------------------ camera director + free orbit
+// ------------------------------------------------------------------ camera: a slow film director, free look on drag
 let camMode = 'auto', lastPose = null, blendFrom = null, blendAt = 0
-const orbit = { target: new THREE.Vector3(), yaw: 0, pitch: .5, dist: 160 }
-const SHOT_LEN = 9
-function shotPose(kind, T, leader, t0 = T) {
-  const L = at(leader.s), a = T
-  if (kind === 0) {             // TV wide: high corner camera following the leader
-    return { pos: L.p.clone().add(new THREE.Vector3(70 + Math.sin(a * .05) * 30, 72, 110)), look: L.p.clone().addScaledVector(L.t, -30).setY(0) }
-  } else if (kind === 1) {      // chase cam: low behind the leader
-    const p = L.p.clone().addScaledVector(L.t, -17).addScaledVector(L.n, 9); p.y = 7
-    return { pos: p, look: L.p.clone().addScaledVector(L.t, 18).setY(1.5) }
-  } else if (kind === 2) {      // a trackside camera the pack sweeps past
-    const s0 = t0 * SPEED - leader.off + SPEED * 4.5, f = at(s0)
-    return { pos: f.p.clone().addScaledVector(f.n, RW / 2 + 9).setY(2.6), look: L.p.clone().setY(.8) }
-  } else {                      // the closest battle in the top 10, from above and behind
-    let best = 1, gap = 1e9
-    for (let i = 1; i < 10; i++) { const g = cars[i - 1].off - cars[i].off; if (Math.abs(g) < gap) { gap = Math.abs(g); best = i } }
-    const c = cars[best], f = at(c.s)
-    const p = f.p.clone().addScaledVector(f.t, -44).addScaledVector(f.n, -12); p.y = 19
-    return { pos: p, look: f.p.clone().addScaledVector(f.t, 8).setY(1) }
+const orbit = { target: new THREE.Vector3(0, 1, -2), yaw: 1.2, pitch: .45, dist: 22 }
+const SHOT = 9
+function shotPose(kind, a) {
+  if (kind === 0) {                 // high corner, drifting: the whole floor and the wall
+    return { pos: new THREE.Vector3(17 - a * .35, 9.2 - a * .1, 15.5), look: new THREE.Vector3(-1, 1.4, -6) }
+  } else if (kind === 1) {          // down the centre aisle at seated eye height
+    return { pos: new THREE.Vector3(0, 1.7, 13.5 - a * .9), look: new THREE.Vector3(0, 2.3, -16) }
+  } else if (kind === 2) {          // over the leader's shoulders onto their screens
+    const P = podPos(0)
+    return { pos: new THREE.Vector3(P.x + 2.4 - a * .14, 1.95, P.z + 3.6 - a * .06), look: new THREE.Vector3(P.x - .2, 1.12, P.z - .72) }
+  } else if (kind === 3) {          // the leaderboard wall
+    return { pos: new THREE.Vector3(-2 + a * .18, 2.6, 7.5 - a * .25), look: new THREE.Vector3(0, 3.5, -16) }
+  } else {                          // along a row of desks from the side, low
+    const P = podPos(4 + 2)
+    return { pos: new THREE.Vector3(19.5 - a * .4, 1.25, P.z + 1.9), look: new THREE.Vector3(-6, 1.1, P.z - .4) }
   }
 }
+const ORDER = [0, 1, 2, 4, 3, 2]
 function directorPose(T) {
-  const k = Math.floor(T / SHOT_LEN), kind = [0, 1, 3, 2, 0, 3, 1, 2][k % 8], prev = [0, 1, 3, 2, 0, 3, 1, 2][(k + 7) % 8]
-  const cur = shotPose(kind, T, cars[0], k * SHOT_LEN), f = ease((T - k * SHOT_LEN) / 1.6)
-  if (f < 1) { const p = shotPose(prev, T, cars[0], (k - 1) * SHOT_LEN); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) }
+  const k = Math.floor(T / SHOT), kind = ORDER[k % ORDER.length], prev = ORDER[(k + ORDER.length - 1) % ORDER.length]
+  const cur = shotPose(kind, T - k * SHOT), f = ease((T - k * SHOT) / 2.2)
+  if (f < 1) { const p = shotPose(prev, SHOT + (T - k * SHOT)); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) }
   return cur
 }
 {
   const cv = renderer.domElement; let down = null, moved = 0
-  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); down = { x: e.clientX, y: e.clientY, b: e.button }; moved = 0 })
+  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); down = { b: e.button }; moved = 0 })
   cv.addEventListener('pointermove', (e) => {
     if (!down) return
     const dx = e.movementX, dy = e.movementY; moved += Math.abs(dx) + Math.abs(dy); if (moved < 4) return
     if (camMode === 'auto' && lastPose) { const d = lastPose.pos.clone().sub(lastPose.look); orbit.target.copy(lastPose.look); orbit.dist = d.length(); orbit.pitch = Math.asin(clamp(d.y / orbit.dist, -1, 1)); orbit.yaw = Math.atan2(d.z, d.x); camMode = 'free'; $('auto').style.display = 'block' }
     cv.classList.add('drag')
     if (down.b === 2 || e.shiftKey) { const s = orbit.dist * .0016; orbit.target.x += (Math.sin(orbit.yaw) * dx + Math.cos(orbit.yaw) * dy) * s; orbit.target.z += (-Math.cos(orbit.yaw) * dx + Math.sin(orbit.yaw) * dy) * s }
-    else { orbit.yaw += dx * .005; orbit.pitch = clamp(orbit.pitch + dy * .004, .05, 1.5) }
+    else { orbit.yaw += dx * .005; orbit.pitch = clamp(orbit.pitch + dy * .004, .04, 1.45) }
   })
   const up = () => { down = null; cv.classList.remove('drag') }
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('contextmenu', (e) => e.preventDefault())
-  cv.addEventListener('wheel', (e) => { e.preventDefault(); if (camMode === 'auto') return; orbit.dist = clamp(orbit.dist * Math.exp(e.deltaY * .0012), 20, 900) }, { passive: false })
+  cv.addEventListener('wheel', (e) => { e.preventDefault(); if (camMode === 'auto') return; orbit.dist = clamp(orbit.dist * Math.exp(e.deltaY * .0012), 2, 40) }, { passive: false })
   $('auto').onclick = () => { blendFrom = lastPose; blendAt = performance.now(); camMode = 'auto'; $('auto').style.display = 'none' }
 }
 
-// ------------------------------------------------------------------ overlay: tower, pit wall, card, broadcast
+// ------------------------------------------------------------------ overlay
 function renderTower() {
   const e = board.entries, pa = prevBoard ? new Map(prevBoard.entries.map((x) => [x.id, x.rank])) : null
-  $('rows').innerHTML = e.slice(0, showN).map((x, i) => {
+  $('rows').innerHTML = e.slice(0, 20).map((x, i) => {
     const gap = i === 0 ? 'LEADER' : '-' + usdPlain(e[0].pnl - x.pnl).slice(1)
     const was = pa && pa.get(x.id), mv = was && was !== x.rank ? (was > x.rank ? '<span class="mv" style="color:var(--up)">▲</span>' : '<span class="mv" style="color:var(--down)">▼</span>') : ''
-    return `<div class="row${selected === x.id ? ' sel' : ''}" data-id="${esc(x.id)}">${mv}<span class="p">${x.rank}</span><span class="bar" style="background:${colorOf(x.name)}"></span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${gap}</span></div>`
+    return `<div class="row${selected === x.id ? ' sel' : ''}" data-id="${esc(x.id)}">${mv}<span class="p">${x.rank}</span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${gap}</span></div>`
   }).join('')
   for (const r of document.querySelectorAll('#rows .row')) r.onclick = () => select(r.dataset.id)
   $('field').textContent = (board.competition?.entriesCount || board.totalRanked || e.length).toLocaleString('en-US')
-  $('stamp').textContent = 'Standings ' + new Date(board.builtAtMs).toISOString().slice(11, 16) + ' UTC'
+  $('stamp').textContent = 'Standings ' + new Date(board.builtAtMs).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
 }
 function renderPit() {
   const top = board.entries.slice(0, 10), m = new Map()
@@ -396,20 +403,23 @@ function select(id) {
   selected = id; renderTower()
   const x = board.entries.find((e) => e.id === id); if (!x) { $('card').classList.remove('on'); return }
   $('card').innerHTML = `<button class="x" id="cx">&times;</button>
-    <div class="hd">${x.img ? `<img src="${esc(x.img)}" alt="">` : ''}<div><b>${esc(x.name)}</b><span>P${x.rank} · ${x.members} traders</span></div></div>
+    <div class="hd">${x.img ? `<img src="${esc(x.img)}" alt="">` : ''}<div><b>${esc(x.name)}</b><span>#${x.rank} · ${x.members} traders</span></div></div>
     <div class="big" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</div>
     <div class="grid"><div><b>${usd(x.realized)}</b><span>Realized</span></div><div><b>${usd(x.unrealized)}</b><span>Unrealized</span></div><div><b>${x.spentSol.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b><span>SOL spent</span></div></div>
-    <div class="grid"><div><b>${x.positions}</b><span>Positions</span></div><div><b>${x.rank === 1 ? '-' : usdPlain(board.entries[0].pnl - x.pnl)}</b><span>Gap to P1</span></div><div><b>${x.members}</b><span>Members</span></div></div>
+    <div class="grid"><div><b>${x.positions}</b><span>Positions</span></div><div><b>${x.rank === 1 ? '-' : usdPlain(board.entries[0].pnl - x.pnl)}</b><span>Gap to #1</span></div><div><b>${x.members}</b><span>Members</span></div></div>
     <div style="font-size:10px;letter-spacing:.16em;color:var(--faint);margin:6px 0 2px">TOP HOLDINGS</div>
     ${(x.top || []).map((c) => `<a class="coin" href="https://pump.fun/coin/${encodeURIComponent(c.mint)}" target="_blank" rel="noopener">${c.img ? `<img src="${esc(c.img)}" alt="">` : '<span></span>'}<div><div class="t">$${esc(c.symbol || '')}</div><div class="w">${esc(c.name || '')}</div></div><div></div></a>`).join('')}`
   $('cx').onclick = () => { selected = null; $('card').classList.remove('on'); renderTower() }
   $('card').classList.add('on')
+  // fly to that squad's desk when it is on the floor
+  const k = board.entries.indexOf(x)
+  if (k >= 0 && k < PODS) { const P = podPos(k); orbit.target.set(P.x, 1.1, P.z - .5); orbit.dist = 5.2; orbit.yaw = 1.25; orbit.pitch = .32; camMode = 'free'; $('auto').style.display = 'block' }
 }
 $('moreBtn').onclick = () => {
   const f = $('full'); f.classList.toggle('on')
   if (!f.classList.contains('on')) return
-  f.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font:700 16px 'Titillium Web';letter-spacing:.2em">FULL STANDINGS</b><button class="x" style="position:static;border:0;background:none;color:var(--dim);font-size:20px;cursor:pointer" onclick="document.getElementById('full').classList.remove('on')">&times;</button></div>` +
-    board.entries.map((x) => `<div class="row" data-id="${esc(x.id)}" style="grid-template-columns:40px 4px 22px 1fr 110px 90px 110px"><span class="p">${x.rank}</span><span class="bar" style="background:${colorOf(x.name)}"></span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${x.members} traders</span><span class="gap">${x.positions} positions</span></div>`).join('')
+  f.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font:600 14px Inter;letter-spacing:.2em">FULL STANDINGS</b><button style="border:0;background:none;color:var(--dim);font-size:20px;cursor:pointer" onclick="document.getElementById('full').classList.remove('on')">&times;</button></div>` +
+    board.entries.map((x) => `<div class="row" data-id="${esc(x.id)}" style="grid-template-columns:40px 22px 1fr 110px 90px 110px"><span class="p">${x.rank}</span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${x.members} traders</span><span class="gap">${x.positions} positions</span></div>`).join('')
   for (const r of f.querySelectorAll('.row')) r.onclick = () => { f.classList.remove('on'); select(r.dataset.id) }
 }
 function updateBroadcast(now) {
@@ -417,153 +427,46 @@ function updateBroadcast(now) {
   if (ev) { $('bcTag').textContent = ev.tag; $('bcTxt').innerHTML = `${esc(ev.text)} <small>${esc(ev.small)}</small>`; $('bc').classList.add('on') } else $('bc').classList.remove('on')
   events = events.filter((e) => now - e.at < 60000)
 }
-function updateCountdown() {
-  const end = Date.parse(board.competition.endsAt), ms = Math.max(0, end - Date.now())
-  const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60
-  $('cd').textContent = `${d}D ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  $('prize').textContent = '$' + (+board.competition.prizeCopy / 1e6).toFixed(1) + 'M'
-}
 const tmpV = new THREE.Vector3()
 function updateTags() {
   const html = [], placed = []
-  for (let i = 0; i < Math.min(CARS, 6); i++) {
-    const c = cars[i]; if (!c.squad) continue
-    tmpV.copy(c.body.position).setY(2.6).project(camera)
-    if (tmpV.z > 1 || Math.abs(tmpV.x) > .95 || tmpV.y > .78 || tmpV.y < -.9) continue
-    const px = (tmpV.x * .5 + .5) * W, py = (-tmpV.y * .5 + .5) * H
-    if (placed.some(([x, y]) => Math.abs(x - px) < 120 && Math.abs(y - py) < 22)) continue
-    placed.push([px, py])
-    html.push(`<div class="tagc" style="left:${((tmpV.x * .5 + .5) * W).toFixed(0)}px;top:${((-tmpV.y * .5 + .5) * H).toFixed(0)}px"><i>P${c.squad.rank}</i>${esc(c.squad.name.toUpperCase())}</div>`)
+  for (const p of pods.slice(0, 12)) {
+    if (!p.entry) continue
+    tmpV.set(p.P.x, 2.05, p.P.z - .7).project(camera)
+    if (tmpV.z > 1 || Math.abs(tmpV.x) > .92 || tmpV.y > .8 || tmpV.y < -.85) continue
+    const x = (tmpV.x * .5 + .5) * W, y = (-tmpV.y * .5 + .5) * H
+    if (placed.some(([a, b]) => Math.abs(a - x) < 150 && Math.abs(b - y) < 34)) continue
+    placed.push([x, y])
+    html.push(`<div class="tagp" style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px"><i>#${p.entry.rank}</i>${esc(p.entry.name)}<small style="color:${p.entry.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(p.entry.pnl)}</small></div>`)
   }
   $('tags').innerHTML = html.join('')
 }
 
-// ------------------------------------------------------------------ film mode: the marketing cut (capture=1&film=1)
-const FILM = Q.get('film')
-// fast cut, 27 s: [start, camera kind] (0 wide, 1 chase, 2 trackside, 3 battle)
-const FILM_SHOTS = [[0, 0], [3, 3], [5.6, 1], [8.2, 0], [11.2, 2], [14, 3], [16.8, 0], [20.4, 1]]
-// each caption has its own place and entrance, so no two scenes look alike
-const FILM_CAPS = [
-  { a: .35, b: 2.8, text: 'pump.fun put $2,500,000 on the line.', css: 'left:72px;bottom:96px;text-align:left;font-size:44px', fx: 'up' },
-  { a: 3.1, b: 5.4, text: '{N} squads.', css: 'left:0;right:0;top:40%;text-align:center;font-size:110px;font-weight:700;letter-spacing:-.03em', fx: 'scale' },
-  { a: 5.75, b: 8.0, text: 'Two weeks. $1.5M to the winner.', css: 'right:72px;top:88px;text-align:right;font-size:40px', fx: 'left' },
-  { a: 8.35, b: 11.0, text: 'So we made it a race.', css: 'left:0;right:0;bottom:84px;text-align:center;font-size:52px', fx: 'blur' },
-  { a: 11.35, b: 13.8, text: 'Every squad is a car.', css: 'right:72px;top:42%;text-align:right;font-size:58px;font-weight:700', fx: 'left' },
-  { a: 14.15, b: 16.6, text: 'Profit is position.', css: 'left:0;right:0;top:110px;text-align:center;font-size:64px;font-weight:700', fx: 'down' },
-  { a: 16.95, b: 20.2, text: 'See what the leaders hold. Live.', css: 'left:470px;bottom:120px;text-align:left;font-size:40px', fx: 'up' },
-  { a: 20.55, b: 22.8, text: 'Squad Wars.', css: 'left:0;right:0;top:44%;text-align:center;font-size:96px;font-weight:700;letter-spacing:.02em', fx: 'scale' },
-]
-let FILM_END = 22.9
-const TOP3 = Q.get('film') === 'top3'
-if (TOP3) {
-  FILM_SHOTS.length = 0; FILM_SHOTS.push([0, 0], [2.4, 3], [3.8, 11], [6.8, 12], [9.8, 13])          // 11-13: chase P3, P2, P1
-  FILM_CAPS.length = 0; FILM_CAPS.push(
-    { a: .3, b: 2.2, text: "pump.fun's squads are at war.", css: 'left:80px;top:96px;text-align:left;font-size:50px;font-weight:700', fx: 'up' },
-    { a: 2.55, b: 3.65, text: 'Three get paid.', css: 'left:0;right:0;top:42%;text-align:center;font-size:104px;font-weight:700;letter-spacing:-.02em', fx: 'scale' })
-  FILM_END = 13.0
-}
-const PRIZE = ['$1,500,000', '$750,000', '$250,000']
-function podCard(k, t, a, b) {
-  const e = board.entries[k]; if (!e) return
-  const kIn = E3(clamp((t - a) / .45)), kOut = clamp((b - t) / .3), o = kIn * kOut
-  const lead = k === 0 && board.entries[1] ? `<span>leads by ${usdPlain(e.pnl - board.entries[1].pnl)}</span>` : ''
-  const coins = (e.top || []).slice(0, 3).map((c) => `<span>${c.img ? `<img src="${esc(c.img)}" alt="">` : ''}$${esc(c.symbol || '')}</span>`).join('')
-  $('pod').style.opacity = o.toFixed(3)
-  $('pod').style.transform = `translateY(-50%) translateX(${((1 - kIn) * 60 - (1 - kOut) * 40).toFixed(1)}px)`
-  $('pod').style.filter = `blur(${((1 - kIn) * 8).toFixed(1)}px)`
-  const html = `<div class="pos">P${e.rank}${k === 0 ? ' · LEADER' : ''}</div><div class="row1">${e.img ? `<img src="${esc(e.img)}" alt="">` : ''}<div class="nm">${esc(e.name)}</div></div>
-    <div class="pnl">${usd(e.pnl)}</div><div class="meta"><span>${e.members} traders</span>${lead}</div><div class="meta">${coins}</div><div class="prize">${PRIZE[k]} IF IT HOLDS</div>`
-  if ($('pod').dataset.k !== String(k)) { $('pod').innerHTML = html; $('pod').dataset.k = String(k) }
-}
-const carFor = (kind) => kind >= 11 ? cars[13 - kind] : cars[0]
-const kindOf = (kind) => kind >= 11 ? 1 : kind
-function filmPose(t) {
-  let i = FILM_SHOTS.length - 1; while (i > 0 && FILM_SHOTS[i][0] > t) i--
-  const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kindOf(kind), t, carFor(kind), t0)
-  if (i > 0) { const f = ease((t - t0) / .28); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(kindOf(pk), t, carFor(pk), p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
-  return cur
-}
-const ramp = (t, a, b, fade = .6) => clamp((t - a) / fade) * clamp((b - t) / fade)
-function filmOverlay(t) {
-  const c = FILM_CAPS.find((x) => t >= x.a - .1 && t <= x.b + .35)
-  if (c) {
-    const words = c.text.replace('{N}', (board.competition?.entriesCount || 962).toLocaleString('en-US')).split(' '), out = clamp((c.b + .35 - t) / .35)
-    $('cap').style.cssText = 'position:absolute;' + c.css
-    $('cap').innerHTML = words.map((w, i) => {
-      const k = E3(clamp((t - c.a - i * .09) / .32)), o = (k * out).toFixed(3)
-      const tf = c.fx === 'up' ? `translateY(${(1 - k) * 22}px)` : c.fx === 'down' ? `translateY(${-(1 - k) * 22}px)` : c.fx === 'left' ? `translateX(${(1 - k) * 40}px)` : c.fx === 'right' ? `translateX(${-(1 - k) * 40}px)` : c.fx === 'scale' ? `scale(${1.25 - .25 * k})` : 'none'
-      return `<span style="opacity:${o};filter:blur(${((1 - k) * (c.fx === 'blur' ? 16 : 7)).toFixed(1)}px);transform:${tf}">${esc(w)}</span>`
-    }).join('')
-  } else $('cap').innerHTML = ''
-  if (TOP3) {
-    $('tower').style.opacity = 0; $('pit').style.opacity = 0; $('brand').style.opacity = $('race').style.opacity = 0
-    $('tags').style.display = t >= 3.6 ? 'none' : ''; $('podBg').style.opacity = ramp(t, 3.8, FILM_END, .4)
-    if (t >= 3.8 && t < 6.8) podCard(2, t, 3.8, 6.8); else if (t >= 6.8 && t < 9.8) podCard(1, t, 6.8, 9.8); else if (t >= 9.8 && t < FILM_END) podCard(0, t, 9.8, FILM_END); else $('pod').style.opacity = 0
-    const names = board.entries.slice(0, 40).map((x) => x.name.toUpperCase()).join('   ·   ')
-    if (!$('ribbon').textContent) $('ribbon').textContent = names + '   ·   ' + names
-    $('ribbon').style.opacity = ramp(t, .2, 3.7, .4); $('ribbon').style.transform = `translateX(${(-t * 160).toFixed(0)}px)`
-    $('asof').textContent = 'Standings ' + new Date(board.builtAtMs).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
-    $('asof').style.opacity = ramp(t, 3.8, FILM_END, .4)
-    $('end').style.opacity = clamp((t - FILM_END) / .6)
-    const po = ramp(t, .3, 2.3, .3); $('pfOpen').style.opacity = po; $('pfOpen').style.left = '80px'; $('pfOpen').style.bottom = 'auto'; $('pfOpen').style.top = '30px'; $('pfOpen').style.transform = 'none'
-    return
-  }
-  $('tower').style.opacity = ramp(t, 8.3, 20.3, .5)
-  $('pit').style.opacity = ramp(t, 16.9, 20.3, .5)
-  $('brand').style.opacity = $('race').style.opacity = ramp(t, 8.3, FILM_END, .5)
-  $('end').style.opacity = clamp((t - FILM_END) / .7)
-  const po = ramp(t, .3, 2.9, .4); $('pfOpen').style.opacity = po; $('pfOpen').style.left = '72px'; $('pfOpen').style.bottom = '168px'; $('pfOpen').style.transform = `translateY(${((1 - clamp((t - .3) / .4)) * 12).toFixed(1)}px)`
-}
-const E3 = (x) => 1 - Math.pow(1 - x, 3)
-
 // ------------------------------------------------------------------ frame
-const SPEED = 46            // units / second around the lap
-let lastT = 0
+let wallAt = -1
 function frame(t) {
-  const dt = Math.min(.1, t - lastT); lastT = t
-  const base = t * SPEED
-  for (let i = 0; i < CARS; i++) {
-    const c = cars[i], sq = board.entries[i]
-    c.squad = sq
-    if (sq) c.color.set(colorOf(sq.name)).multiplyScalar(1.6)
-    c.off += (targetOffset(i) - c.off) * (1 - Math.exp(-dt * .6))          // positions ease, so overtakes play out on track
-    c.s = base - c.off
-    const gapU = i ? c.off - cars[i - 1].off : 99
-    const lane = ((i % 3) - 1) * 3.2 * clamp(1 - gapU / 14)            // close cars run side by side
-    const f = at(c.s), p = f.p.clone().addScaledVector(f.n, lane).setY(.9)
-    c.body.position.copy(p).setY(0); c.body.rotation.y = -Math.atan2(f.t.z, f.t.x); c.body.userData.stripe.material.color.copy(c.color)
-    c.head.position.copy(p).addScaledVector(f.t, 2.7).setY(.8)
-    c.body.visible = c.head.visible = c.trail.visible = !!sq
-    const pa = c.trail.geometry.attributes.position.array, aa = c.trail.geometry.attributes.a.array, ca = c.trail.geometry.attributes.col.array
-    for (let k = 0; k < TRAIL; k++) {
-      const g = at(c.s - 2.4 - k * 1.5), q = g.p.clone().addScaledVector(g.n, lane), w = .16 * (1 - k / TRAIL)
-      const A = q.clone().addScaledVector(g.n, w), B = q.clone().addScaledVector(g.n, -w)
-      pa.set([A.x, .5, A.z, B.x, .5, B.z], k * 6)
-      const al = Math.pow(1 - k / TRAIL, 2) * .75; aa[k * 2] = aa[k * 2 + 1] = al
-      ca.set([c.color.r * .5, c.color.g * .5, c.color.b * .5, c.color.r * .5, c.color.g * .5, c.color.b * .5], k * 6)
-    }
-    c.trail.geometry.attributes.position.needsUpdate = c.trail.geometry.attributes.a.needsUpdate = c.trail.geometry.attributes.col.needsUpdate = true
-  }
-  let pose = FILM ? filmPose(t) : directorPose(t)
-  if (camMode === 'free') { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, o.target.y + Math.sin(o.pitch) * o.dist, o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
+  updatePods()
+  if (Math.floor(t) !== wallAt) { drawWall(); wallAt = Math.floor(t) }
+  let pose = directorPose(t)
+  if (camMode === 'free') { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, Math.max(.4, o.target.y + Math.sin(o.pitch) * o.dist), o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
   else if (blendFrom) { const f = ease((performance.now() - blendAt) / 2400); if (f >= 1) blendFrom = null; else pose = { pos: blendFrom.pos.clone().lerp(pose.pos, f), look: blendFrom.look.clone().lerp(pose.look, f) } }
   lastPose = pose
   camera.position.copy(pose.pos); camera.lookAt(pose.look)
   grade.uniforms.t.value = t % 100
   composer.render()
-  updateTags(); updateBroadcast(performance.now()); updateCountdown()
-  if (FILM) filmOverlay(t)
+  updateTags(); updateBroadcast(performance.now())
+  $('cd').textContent = cdText(); $('prize').textContent = '$' + (+board.competition.prizeCopy / 1e6).toFixed(1) + 'M'
 }
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix() })
 
-// the $SQUADS CA bar (only once a CA is set)
+// the coin's CA bar (only once a CA is set in project.config.js)
 if (PROJECT.mint) {
   $('caT').textContent = '$' + PROJECT.ticker; $('caV').textContent = PROJECT.mint.slice(0, 6) + '…' + PROJECT.mint.slice(-6)
   $('caPf').href = 'https://pump.fun/coin/' + encodeURIComponent(PROJECT.mint); $('ca').classList.add('on')
   $('caCopy').onclick = () => { navigator.clipboard?.writeText(PROJECT.mint); $('caCopy').textContent = 'Copied'; setTimeout(() => { $('caCopy').textContent = 'Copy CA' }, 1500) }
 }
 await load(); renderTower(); renderPit()
-if (CAPTURE) { document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
+if (CAPTURE) { document.body.classList.add('capture'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
 else {
   setInterval(async () => { await load(); renderTower(); renderPit(); if (selected) select(selected) }, 60000)
   const t0 = performance.now(); const loop = () => { frame((performance.now() - t0) / 1000); requestAnimationFrame(loop) }; loop()
