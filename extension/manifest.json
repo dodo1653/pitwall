@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Squad GP pit lane",
+  "version": "1.0.0",
+  "description": "While pump.fun's squads leaderboard is open in this browser, forwards the standings it shows to your Squad GP site once a minute.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://*.vercel.app/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "Squad GP pit lane" },
+  "content_scripts": [
+    { "matches": ["https://pump.fun/leaderboard*"], "js": ["hook.js"], "world": "MAIN", "run_at": "document_start" },
+    { "matches": ["https://pump.fun/leaderboard*"], "js": ["bridge.js"], "run_at": "document_start" }
+  ]
+}

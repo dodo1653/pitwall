@@ -259,6 +259,7 @@ async function load() {
   let d = null
   if (!CAPTURE) { try { const r = await fetch('/api/board', { cache: 'no-store' }); if (r.ok) d = await r.json() } catch {} }
   if (!d || !d.entries) d = await (await fetch('data/snapshot.json')).json()
+  if (!d.competition || !d.competition.endsAt) d.competition = (await (await fetch('data/snapshot.json')).json()).competition
   if (board && d.builtAtMs !== board.builtAtMs) { prevBoard = board; diff(prevBoard, d) }
   board = d
   if (!cars[0].squad) for (const c of cars) c.off = targetOffset(cars.indexOf(c))
