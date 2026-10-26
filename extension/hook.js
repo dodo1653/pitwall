@@ -1,7 +1,7 @@
 // Runs inside the pump.fun page. Whenever the page receives data, look for the squads standings in it
 // (recognised by their content: a list of entries with pnlUsd), however the page loads them.
 (() => {
-  let seen = 0, found = 0
+  let seen = 0, found = 0, best = null, timer = 0
   const findBoard = (o, depth = 0) => {
     if (!o || typeof o !== 'object' || depth > 6) return null
     if (Array.isArray(o)) {
@@ -21,7 +21,9 @@
       found++
       const lb = b.__parent?.leaderboard === b ? b.__parent.leaderboard : b
       const comp = j.competition || b.__parent?.competition || null
-      window.postMessage({ __squadgp: { competition: comp, leaderboard: { entries: b.entries, builtAtMs: lb.builtAtMs || Date.now(), totalRanked: lb.totalRanked || 0 } } }, location.origin)
+      // the page may load a small preview (the top 3) before the full board: keep the biggest, send it a few seconds later
+      if (!best || b.entries.length > best.leaderboard.entries.length) best = { competition: comp, leaderboard: { entries: b.entries, builtAtMs: lb.builtAtMs || Date.now(), totalRanked: lb.totalRanked || 0 } }
+      clearTimeout(timer); timer = setTimeout(() => window.postMessage({ __squadgp: best }, location.origin), 4000)
     }
     report()
   }
