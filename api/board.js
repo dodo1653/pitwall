@@ -54,6 +54,10 @@ export default async function handler(req) {
     const first = (Array.isArray(raw?.leaderboard?.entries) ? raw.leaderboard.entries : Array.isArray(raw?.entries) ? raw.entries : Array.isArray(raw) ? raw : [])[0]
     await redis('SET', 'board:sample', JSON.stringify({ at: Date.now(), topKeys: Object.keys(raw || {}).slice(0, 30), entryKeys: first ? Object.keys(first).slice(0, 40) : null, entry: first ? JSON.stringify(first).slice(0, 1500) : null, n: b.entries.length }))
     if (b.entries.length < 3) return json({ error: 'no standings in that response' }, 400)
+    // only the competition table counts (entries carry an entryId / kind 'group'); the leaderboard tab's period table is refused
+    const ok = raw?.periodType === undefined && first && (first.entryId || first.kind === 'group')
+    if (!ok) return json({ error: 'that is the period leaderboard, open the competition page' }, 400)
+    b.source = 'competition'
     const prev = JSON.parse((await redis('GET', 'board:latest')) || 'null')
     if (prev && prev.builtAtMs >= b.builtAtMs) return json({ ok: true, unchanged: true })
     await redis('SET', 'board:latest', JSON.stringify(b))
@@ -73,6 +77,6 @@ export default async function handler(req) {
     return json(h.map((x) => JSON.parse(x)), 200, 'public, s-maxage=120, stale-while-revalidate=300')
   }
   const b = await redis('GET', 'board:latest')
-  if (!b) return json({ error: 'no standings yet' }, 404)
+  if (!b || !b.includes('"source":"competition"')) return json({ error: 'no standings yet' }, 404)
   return new Response(b, { headers: { 'content-type': 'application/json', 'cache-control': 'public, s-maxage=20, stale-while-revalidate=60', 'access-control-allow-origin': '*' } })
 }

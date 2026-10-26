@@ -23,4 +23,4 @@ function status(res) {
 }
 setTimeout(() => status(null), 2500)
 // refresh once a minute, like pressing F5 (only while the squads tab is showing)
-setInterval(() => { if (/tab=squads/.test(location.search)) location.reload() }, 60000)
+setInterval(() => { if (/^\/competitions\//.test(location.pathname) || /tab=squads/.test(location.search)) location.reload() }, 60000)
