@@ -1,0 +1,76 @@
+===== bio  (142/160) =====
+The pump.fun $2.5M Squads Competition, as a live race. Every squad is a car. Its profit is its position. $SQUADS
+Not affiliated with pump.fun.
+
+===== 1_launch_clip  (107/280) =====
+pump.fun put $2,500,000 on the line.
+
+962 squads. Two weeks. One leaderboard.
+
+So we turned it into a race.
+
+===== 1_launch_clip_reply  (112/280) =====
+Watch it live. Click any squad to see its profit, its members and what it's holding:
+https://squadsgp.vercel.app
+
+===== 2_how  (193/280) =====
+How Squad Wars works:
+
+Every squad in the pump.fun competition is a car.
+Its profit decides its position.
+The gap between cars is the gap in dollars.
+
+When a squad pumps, you watch it overtake.
+
+===== 3_pitwall  (158/280) =====
+The best part isn't the race.
+
+It's the Pit Wall: what the top 10 squads are holding, live.
+
+When 3 of the top 10 squads hold the same coin, you see it first.
+
+===== 4_question  (70/280) =====
+962 squads are fighting for $1,500,000.
+
+Two weeks left. Who takes it?
+
+===== 5_ticker  (52/280) =====
+$SQUADS
+
+The race is live. The coin is the pit pass.
+
+===== T_daily_report  (147/280) =====
+Squad Wars, day [D] of 14
+
+P1 [SQUAD 1] [+$X]
+P2 [SQUAD 2] [+$X]
+P3 [SQUAD 3] [+$X]
+
+Biggest move: [SQUAD] [+$X]
+Most held by the top 10: $[TICKER]
+
+===== T_overtake  (105/280) =====
+OVERTAKE
+
+[SQUAD A] passes [SQUAD B] for P[N] in the $2.5M pump.fun Squads race.
+
+Gap to the leader: [$X]
+
+===== T_new_leader  (117/280) =====
+NEW LEADER
+
+[SQUAD] takes P1 in the pump.fun Squads Competition, [+$X] after [D] days.
+
+$1,500,000 is theirs to lose.
+
+===== T_launch  (164/280) =====
+$SQUADS is live.
+
+The $2.5M pump.fun Squads race, broadcast live: every squad a car, every overtake on screen, every leader's bag on the Pit Wall.
+
+CA in the reply.
+
+===== T_launch_reply  (43/280) =====
+CA: [CA]
+
+Site: https://squadsgp.vercel.app
