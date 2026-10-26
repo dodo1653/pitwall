@@ -2,7 +2,10 @@
 //   GET  /api/board          -> the latest standings (same shape as data/snapshot.json)
 //   GET  /api/board?hist=1   -> compact history: [{ t, r: [[id, rank, pnl], ...top 30] }, ...] (oldest first)
 //   POST /api/board          -> the pit-lane extension sends pump.fun's competition response here (header x-pit-key)
-// Env: KV_REST_API_URL + KV_REST_API_TOKEN (or UPSTASH_REDIS_REST_URL / _TOKEN), PIT_KEY (a shared secret, set in Vercel).
+// Env: KV_REST_API_URL + KV_REST_API_TOKEN (or UPSTASH_REDIS_REST_URL / _TOKEN). The pit key itself is never stored here:
+// only its SHA-256, so the repo can be public. (A PIT_KEY env var, if set, also works.)
+const PIT_KEY_SHA256 = 'b7b2147118b246423004a81554342687468763f53359168934c9636bbcb46fe6'
+const sha256 = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((b) => b.toString(16).padStart(2, '0')).join('')
 export const config = { runtime: 'edge' }
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
@@ -37,7 +40,8 @@ export default async function handler(req) {
   if (!URL_ || !TOKEN) return json({ error: 'storage not connected' }, 503)
   if (req.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET, POST', 'access-control-allow-headers': 'content-type, x-pit-key' } })
   if (req.method === 'POST') {
-    if (!process.env.PIT_KEY || req.headers.get('x-pit-key') !== process.env.PIT_KEY) return json({ error: 'forbidden' }, 403)
+    const k = req.headers.get('x-pit-key') || ''
+    if (!((process.env.PIT_KEY && k === process.env.PIT_KEY) || (await sha256(k)) === PIT_KEY_SHA256)) return json({ error: 'forbidden' }, 403)
     let raw; try { raw = await req.json() } catch { return json({ error: 'bad json' }, 400) }
     const b = compact(raw)
     const prevC = JSON.parse((await redis('GET', 'board:latest')) || 'null')?.competition

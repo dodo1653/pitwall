@@ -1,7 +1,9 @@
 // Sends the standings to the Squad GP site saved in the popup (site address + pit key).
+importScripts('local.js')            // site + key, kept on this PC only (local.js is not in git)
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   if (msg.type !== 'board') return
-  chrome.storage.local.get(['site', 'key'], async ({ site, key }) => {
+  chrome.storage.local.get(['site', 'key'], async (saved) => {
+    const site = saved.site || self.PITLANE?.site, key = saved.key || self.PITLANE?.key
     if (!site || !key) { reply({ ok: false, error: 'open the extension and enter your site + pit key' }); return }
     try {
       const r = await fetch(site.replace(/\/+$/, '') + '/api/board', { method: 'POST', headers: { 'content-type': 'application/json', 'x-pit-key': key }, body: JSON.stringify(msg.data) })

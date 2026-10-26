@@ -4,3 +4,4 @@ out/
 *.log
 node_modules/
 .vercel/
+extension/local.js
