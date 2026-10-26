@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Squad Trenchers: launch cut</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  .layer { position: absolute; inset: 0; }
+  #mint { background: radial-gradient(ellipse at 50% 55%, #b9f7cf 0%, #e8fbef 46%, #f6fff9 100%); }
+  #rings { position: absolute; left: 50%; top: 50%; }
+  .ring { position: absolute; border: 3px solid #36d97c; border-radius: 50%; transform: translate(-50%, -50%); }
+  .hl { background: #36d97c; color: #04130a; padding: 0 .16em; border-radius: .14em; }
+  .type { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font: 800 88px Inter; letter-spacing: -.035em; }
+  .caret { display: inline-block; width: 6px; height: 80px; background: #36d97c; vertical-align: -12px; margin-left: 6px; }
+  .tw { position: absolute; width: 1000px; background: #fff; border-radius: 22px; padding: 26px 30px 24px; box-shadow: 0 30px 80px rgba(9,60,30,.22), 0 2px 0 rgba(0,0,0,.04); color: #0f1419; transform-origin: 50% 60%; }
+  .tw .h { display: flex; align-items: center; gap: 14px; }
+  .tw .av { width: 68px; height: 68px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px #e6ece8; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tw .av img { width: 56px; height: 56px; }
+  .tw .nm { font: 800 28px Inter; }
+  .tw .hd { font: 500 24px Inter; color: #536471; }
+  .tw .x { margin-left: auto; width: 32px; height: 32px; }
+  .tw .tx { margin-top: 18px; font: 500 34px/1.36 Inter; white-space: pre-line; }
+  .chip { position: absolute; padding: 18px 30px; border-radius: 999px; background: #04130a; color: #fff; font: 800 44px Inter; letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 20px 50px rgba(4,19,10,.25); }
+  .chip small { font: 700 20px Inter; letter-spacing: .2em; color: #36d97c; margin-right: 16px; vertical-align: 6px; }
+  .kin { position: absolute; white-space: nowrap; }
+  .kin span { display: inline-block; margin: 0 .11em; }
+  /* the floor: a browser window that can open to full screen */
+  #persp { position: absolute; inset: 0; perspective: 2600px; }
+  #tilt { position: absolute; inset: 0; transform-origin: 960px 560px; }
+  #win { position: absolute; left: 0; top: 0; width: 1920px; height: 1134px; transform-origin: 0 0; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 60px 140px rgba(4,30,14,.35), 0 0 0 1px rgba(0,0,0,.08); }
+  #chrome { height: 54px; background: #15171b; display: flex; align-items: center; padding: 0 22px; gap: 12px; border-bottom: 1px solid #23262c; }
+  #chrome i { width: 15px; height: 15px; border-radius: 50%; display: block; }
+  #url { margin: 0 auto; width: 560px; height: 32px; border-radius: 9px; background: #0b0c0f; color: #c9ced6; font: 500 17px Inter; display: flex; align-items: center; justify-content: center; gap: 8px; transform: translateX(-30px); }
+  #url svg { width: 14px; height: 14px; }
+  #floor { display: block; width: 1920px; height: 1080px; border: 0; }
+  #cursor { position: absolute; width: 34px; height: 34px; left: 0; top: 0; opacity: 0; filter: drop-shadow(0 3px 6px rgba(0,0,0,.5)); }
+  #ripple { position: absolute; border: 3px solid #36d97c; border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; }
+  /* captions over the floor */
+  .cap { position: absolute; color: #fff; text-shadow: 0 2px 30px rgba(0,0,0,.9); }
+  .cap .k { font: 700 18px Inter; letter-spacing: .32em; color: #3fe08e; display: flex; align-items: center; gap: 14px; }
+  .cap .k b { font: 700 18px 'JetBrains Mono'; letter-spacing: .05em; color: #000; background: #3fe08e; padding: 3px 9px; border-radius: 5px; }
+  .cap .t { margin-top: 14px; font: 700 58px/1.08 Inter; letter-spacing: -.03em; }
+  .cap .t span { display: inline-block; margin-right: .22em; }
+  .stamp { position: absolute; right: 44px; bottom: 30px; font: 500 15px 'JetBrains Mono'; color: rgba(255,255,255,.5); }
+  .panel { position: absolute; width: 400px; padding: 20px 24px; border-radius: 16px; background: linear-gradient(180deg, rgba(16,18,22,.86), rgba(8,9,12,.82)); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 30px 70px rgba(0,0,0,.5); color: #fff; }
+  .panel span { display: block; font: 700 14px Inter; letter-spacing: .26em; color: rgba(255,255,255,.45); }
+  .panel b { display: block; margin-top: 8px; font: 700 40px 'JetBrains Mono'; letter-spacing: -.03em; }
+  .panel em { font-style: normal; font: 500 18px Inter; color: rgba(255,255,255,.6); margin-left: 10px; letter-spacing: 0; }
+  /* the coin */
+  #coin { background: radial-gradient(ellipse at 50% 46%, #0b2416 0%, #000 62%); }
+  #coinImg { position: absolute; left: 50%; top: 380px; width: 420px; height: 420px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(63,224,142,.35), 0 0 120px rgba(63,224,142,.25); }
+  #tick { position: absolute; left: 0; right: 0; top: 640px; text-align: center; color: #fff; font: 900 120px Inter; letter-spacing: -.04em; }
+  #tick span { display: inline-block; }
+  #coinSub { position: absolute; left: 0; right: 0; top: 800px; text-align: center; color: rgba(255,255,255,.75); font: 500 34px Inter; }
+  #pfPill { position: absolute; left: 50%; top: 880px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 12px 26px 12px 14px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: #fff; font: 600 26px Inter; white-space: nowrap; }
+  #pfPill img { width: 44px; height: 44px; }
+  #end { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+  #end img.lg { width: 430px; height: 430px; }
+  #end .u { margin-top: 10px; font: 700 28px Inter; letter-spacing: .1em; }
+  #end .pf { margin-top: 26px; display: flex; align-items: center; gap: 12px; font: 500 19px Inter; color: rgba(255,255,255,.78); }
+  #end .pf img { width: 44px; height: 44px; }
+  #end .d { margin-top: 18px; font-size: 14px; color: rgba(255,255,255,.4); }
+  #wipe { position: absolute; left: 50%; top: 50%; border-radius: 50%; background: #000; transform: translate(-50%, -50%); }
+</style>
+</head>
+<body>
+<div class="layer" id="black" style="background:#000"></div>
+<div class="layer" id="mint"></div>
+<div id="rings"></div>
+<div id="wipe"></div>
+<div id="persp"><div id="tilt"><div id="win"><div id="chrome"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div id="url"><svg viewBox="0 0 24 24"><path fill="#8b929c" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3z"/></svg><span id="urlT"></span></div></div><iframe id="floor" scrolling="no"></iframe></div></div></div>
+<div class="layer" id="over"></div>
+<div id="ripple"></div>
+<svg id="cursor" viewBox="0 0 24 24"><path d="M4 2l15 11.5-6.6.9 3.9 7.4-3 1.6-3.9-7.5L4 20.5z" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/></svg>
+<div class="layer" id="coin"><img id="coinImg" src="../brand/trenchers_coin.png"><div id="tick"></div><div id="coinSub"></div><div id="pfPill"><img src="../brand/pumpfun.svg">Launching on pump.fun</div></div>
+<div class="layer" id="end"><img class="lg" src="../brand/trenchers_logo_text.png"><div class="u" id="endU"></div><div class="pf"><img src="../brand/pumpfun.svg">Built on the pump.fun Squads Competition</div><div class="d">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div></div>
+<script>window.READY = false</script>
+<script type="module">
+import PROJECT from '../project.config.js'
+const Q = new URLSearchParams(location.search)
+const SITE = Q.get('site') || 'squadsgp.vercel.app'
+const $ = (id) => document.getElementById(id)
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x))
+const E3 = (x) => 1 - Math.pow(1 - clamp(x), 3)
+const E5 = (x) => 1 - Math.pow(1 - clamp(x), 5)
+const IO = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2 }
+const back = (x) => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2) }
+const ramp = (t, a, b, f = .25) => clamp((t - a) / f) * clamp((b - t) / f)
+const lerp = (a, b, k) => a + (b - a) * k
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
+const usd = (v) => (v >= 0 ? '+$' : '-$') + Math.abs(Math.round(v)).toLocaleString('en-US')
+const X_ICON = '<svg class="x" viewBox="0 0 24 24"><path fill="#0f1419" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+// pump.fun's real posts, quoted word for word (dates from the posts)
+const PF = { name: 'Pump.fun', handle: 'Pumpfun', av: '../brand/pumpfun.svg' }
+const TWEETS = {
+  comp: { ...PF, date: 'Oct 26', text: 'The $2,500,000 SQUADS COMPETITION is LIVE\n\nFor the next 2 weeks, the 3 squads with the highest PNL will take home:\n\n🥇 $1,500,000\n🥈 $750,000\n🥉 $250,000' },
+  dabal: { ...PF, date: 'Oct 26', text: 'DABAL.\n\nNOW TRADING ON PUMPFUN.' },
+  conv: { ...PF, date: 'Oct 24', text: 'Conviction Capital.\n\nSquad now trading on Pumpfun.' },
+}
+const card = (k, hl) => {
+  const w = TWEETS[k]; let text = esc(w.text); if (hl) text = text.replace(hl, `<span class="hl">${hl}</span>`)
+  return `<div class="tw" id="tw_${k}"><div class="h"><div class="av"><img src="${w.av}"></div><div><div class="nm">${esc(w.name)}</div><div class="hd">@${esc(w.handle)} · ${w.date}</div></div>${X_ICON}</div><div class="tx">${text}</div></div>`
+}
+const board = await (await fetch(Q.get('board') || '../data/snapshot.json')).json()
+const E = board.entries, N = (board.competition?.entriesCount || 962)
+const STAMP = 'Standings ' + new Date(board.builtAtMs).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+const lead = E[0], second = E[1]
+
+// ------------------------------------------------------------------ stage elements
+$('over').innerHTML = `<div class="layer" id="scrim"></div>` + card('comp') + card('dabal') + card('conv') + `
+  <div class="chip" id="p1"><small>1ST</small>$1,500,000</div><div class="chip" id="p2"><small>2ND</small>$750,000</div><div class="chip" id="p3"><small>3RD</small>$250,000</div>
+  <div class="type" id="type1" style="color:#fff"></div>
+  <div class="cap" id="cap"><div class="k" id="capK"></div><div class="t" id="capT"></div></div>
+  <div class="stamp" id="stamp">${STAMP}</div>
+  <div class="panel" id="pa"><span>RANK</span><b>#1 <em>of ${N.toLocaleString('en-US')}</em></b></div>
+  <div class="panel" id="pb"><span>SQUAD</span><b style="font-family:Inter">${esc(lead.name)} <em>${lead.members} traders</em></b></div>
+  <div class="panel" id="pc"><span>PROFIT</span><b id="pcv" style="color:#3fe08e"></b></div>
+  <div class="panel" id="pd"><span>TOP HOLDINGS</span><b style="font-size:32px">${(lead.top || []).slice(0, 3).map((c) => '$' + esc(c.symbol)).join('  ')}</b></div>`
+$('urlT').textContent = SITE
+$('endU').textContent = '$' + PROJECT.ticker + ' · ' + SITE
+$('tick').innerHTML = ('$' + PROJECT.ticker).split('').map((c) => `<span>${esc(c)}</span>`).join('')
+$('coinSub').textContent = 'The coin of the trading floor.'
+const place = (id, x, y, s = 1, r = 0, o = 1) => { const e = $(id); e.style.left = x + 'px'; e.style.top = y + 'px'; e.style.transform = `translate(-50%, -50%) scale(${s}) rotate(${r}deg)`; e.style.opacity = o }
+// word-by-word reveal; each scene sets its own position and entrance so no two read the same
+function kin(id, text, t0, t1, t, css, o = {}) {
+  let el = $(id); if (!el) { el = document.createElement('div'); el.id = id; el.className = 'kin'; $('over').appendChild(el) }
+  if (t < t0 - .05 || t > t1 + .3) { el.innerHTML = ''; return }
+  el.style.cssText = css
+  const out = clamp((t1 + .3 - t) / .3), ws = text.split(' ')
+  el.innerHTML = ws.map((w, i) => {
+    const k = (o.pop ? back : E5)((t - t0 - i * (o.gap ?? .08)) / (o.dur ?? .38)), kk = clamp(k)
+    const tf = o.fx === 'left' ? `translateX(${(1 - k) * 60}px)` : o.fx === 'right' ? `translateX(${-(1 - k) * 60}px)` : o.fx === 'scale' ? `scale(${1.5 - .5 * k})` : o.fx === 'drop' ? `translateY(${-(1 - k) * 50}px)` : `translateY(${(1 - k) * 40}px)`
+    const cls = (o.hl || []).includes(w) ? 'hl' : ''
+    const col = o.color && o.color[w] ? `color:${o.color[w]};` : ''
+    return `<span class="${cls}" style="${col}opacity:${(kk * out).toFixed(3)};filter:blur(${((1 - kk) * 14).toFixed(1)}px);transform:${tf}">${esc(w)}</span>`
+  }).join(' ')
+}
+
+// ------------------------------------------------------------------ the floor (the real site in an iframe, driven frame by frame)
+const fr = $('floor')
+fr.src = '../index.html?capture=1&ui=1&dur=60' + (Q.get('board') ? '&board=' + encodeURIComponent(Q.get('board')) : '')
+let F = null, FD = null
+await new Promise((r) => { fr.onload = r })
+for (let i = 0; i < 300 && !(fr.contentWindow.READY && fr.contentWindow.SITE); i++) await new Promise((r) => setTimeout(r, 100))
+F = fr.contentWindow; FD = fr.contentDocument
+FD.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') e.target.style.visibility = 'hidden' }, true)
+for (const im of FD.images) if (im.complete && !im.naturalWidth) im.style.visibility = 'hidden'
+for (const im of FD.images) im.loading = 'eager'
+for (let i = 0; i < 100 && [...FD.images].some((im) => !im.complete); i++) await new Promise((r) => setTimeout(r, 100))
+for (const im of FD.images) if (!im.naturalWidth) im.style.visibility = 'hidden'
+const st = FD.createElement('style')
+st.textContent = `#brand, #race, #ca, #tower, #pit, #stamp, #foot, #moreBtn { opacity: var(--ui, 0) !important; transition: none !important; }
+  #tags { opacity: var(--tags, 0); } #auto, #bc, #cap, #end, #pfOpen { display: none !important; } #card { transition: none !important; }`
+FD.head.appendChild(st)
+const V = (x, y, z) => ({ x, y, z })
+const podP = (k) => { const p = F.SITE.podPos(k); return { x: p.x, y: p.y, z: p.z } }
+const shot = (kind, a) => { const p = F.SITE.shotPose(kind, a); return { pos: V(p.pos.x, p.pos.y, p.pos.z), look: V(p.look.x, p.look.y, p.look.z) } }
+const mixPose = (a, b, k) => ({ pos: V(lerp(a.pos.x, b.pos.x, k), lerp(a.pos.y, b.pos.y, k), lerp(a.pos.z, b.pos.z, k)), look: V(lerp(a.look.x, b.look.x, k), lerp(a.look.y, b.look.y, k), lerp(a.look.z, b.look.z, k)) })
+const deskPose = (k) => { const P = podP(k), tx = P.x, ty = 1.1, tz = P.z - .5, d = 5.2, yaw = 1.25, pitch = .32, cp = Math.cos(pitch); return { pos: V(tx + Math.cos(yaw) * cp * d, ty + Math.sin(pitch) * d, tz + Math.sin(yaw) * cp * d), look: V(tx, ty, tz) } }
+let pose = null
+F.camOverride = () => pose
+const T3 = { a: 9.7, b: 25.7 }          // the floor is on screen between these
+function floorPose(t) {
+  if (t < 13.0) { const a = IO((t - 9.7) / 3.3); return mixPose({ pos: V(15, 12.5, 17), look: V(-1, .6, -4) }, { pos: V(8.5, 5.6, 11.5), look: V(-2.5, 1.3, -7) }, a) }   // crane down over the room
+  if (t < 16.2) return shot(2, (t - 13.0) * 1.6)                                    // over the leader's shoulders
+  if (t < 18.6) return shot(4, (t - 16.2) * 2.6)                                    // low along a row
+  if (t < 21.4) return shot(3, (t - 18.6) * 2.2)                                    // the wall
+  const wide = shot(0, (t - 21.4) * 1.2)
+  return t < 23.2 ? wide : mixPose(wide, deskPose(1), IO((t - 23.2) / 1.5))      // the click: fly to #2's desk
+}
+
+// ------------------------------------------------------------------ timeline
+window.DURATION = 34
+let selState = null
+window.renderFrame = (t) => {
+  // --- 0-1.3: typed on black
+  const line = 'pump.fun just started a war.', n = Math.floor(clamp((t - .15) / .85) * line.length)
+  $('type1').innerHTML = t < 1.32 ? esc(line.slice(0, n)).replace('war.', '<span class="hl">war.</span>') + '<span class="caret"></span>' : ''
+  // --- mint world: 1.3-9.0 and again for the site 21.4-28
+  $('mint').style.opacity = Math.max(ramp(t, 1.3, 8.75, .12), ramp(t, 21.3, 28.0, .12))
+  $('rings').innerHTML = [[1.32, 0], [1.32, .16], [7.6, 0], [7.6, .16], [7.6, .32]].map(([t0, d]) => { const a = (t - t0 - d) / 1.1; if (a < 0 || a > 1) return ''; return `<div class="ring" style="width:${200 + a * 1800}px;height:${200 + a * 1800}px;opacity:${(1 - a) * .7}"></div>` }).join('')
+  // --- 1.3-3.9: the announcement; the prize lights up, then the three prizes burst out of it
+  const hl = t > 2.0; if (hl !== $('tw_comp').innerHTML.includes('class="hl"')) $('tw_comp').outerHTML = card('comp', hl ? '$2,500,000' : null)
+  const c1 = back((t - 1.35) / .45), o1 = E3((t - 3.75) / .3)
+  place('tw_comp', 960 - o1 * 300, 540 + (1 - c1) * 70 + o1 * 40, (.45 + .55 * c1) * (1 - .12 * clamp((t - 2.75) / .4)) * (1 - o1 * .2), -o1 * 6, c1 > 0 ? 1 - o1 : 0)
+  ;[['p1', 420, 300, 2.8], ['p2', 1520, 470, 2.9], ['p3', 470, 800, 3.0]].forEach(([id, x, y, a]) => { const k = back((t - a) / .45), o = E3((t - 3.75) / .3); place(id, lerp(960, x, clamp(k)), lerp(560, y, clamp(k)), .5 + .5 * k, (x < 960 ? -4 : 4) * (1 - clamp(k)), k > 0 ? 1 - o : 0) })
+  // --- 3.9-5.5: squads are signing up; the count runs
+  const c2 = back((t - 3.9) / .4), c3 = back((t - 4.12) / .4), o23 = E3((t - 5.35) / .25), dim = clamp((t - 4.6) / .3)
+  place('tw_dabal', 640 - (1 - c2) * 700, 420, .74 * (1 - dim * .06), -7 - o23 * 12, c2 > 0 ? (1 - dim * .55) * (1 - o23) : 0)
+  place('tw_conv', 1290 + (1 - c3) * 700, 660, .74 * (1 - dim * .06), 6 + o23 * 12, c3 > 0 ? (1 - dim * .55) * (1 - o23) : 0)
+  const cnt = Math.round(N * E3((t - 4.6) / .65))
+  kin('kCount', cnt.toLocaleString('en-US') + ' squads.', 4.6, 5.35, t, 'left:0;right:0;top:400px;text-align:center;font:900 190px Inter;letter-spacing:-.05em;color:#04130a;text-shadow:0 0 60px #f6fff9', { fx: 'scale', gap: .05 })
+  // --- 5.5-7.2: the stakes, then the question
+  kin('kStakes', 'Two weeks. Only 3 get paid.', 5.5, 6.35, t, 'left:150px;top:330px;font:900 120px/1.05 Inter;letter-spacing:-.045em;color:#04130a;width:1300px;white-space:normal', { fx: 'left', hl: ['3'], gap: .07 })
+  kin('kWho', "Who's winning right now?", 6.45, 7.15, t, 'left:0;right:0;top:420px;text-align:center;font:900 132px Inter;letter-spacing:-.05em;color:#04130a', { fx: 'drop', pop: true, gap: .07 })
+  // --- 7.5-8.9: introducing
+  if (t >= 7.5 && t < 9.0) {
+    const k = back((t - 7.55) / .5)
+    let ki = $('kIntro'); if (!ki) { ki = document.createElement('div'); ki.id = 'kIntro'; ki.className = 'kin'; $('over').appendChild(ki) }
+    ki.style.cssText = 'left:0;right:0;top:300px;text-align:center;opacity:' + (1 - E3((t - 8.45) / .25))
+    ki.innerHTML = `<div style="font:700 26px Inter;letter-spacing:.42em;color:#1f9a55;opacity:${clamp((t - 7.5) / .2)}">INTRODUCING</div><img src="../brand/trenchers_coin.png" style="margin-top:34px;width:220px;height:220px;border-radius:50%;transform:scale(${Math.max(0, k)}) rotate(${(1 - clamp(k)) * -40}deg);box-shadow:0 30px 80px rgba(4,19,10,.35)">`
+    kin('kName', PROJECT.name + '.', 7.85, 8.4, t, 'left:0;right:0;top:640px;text-align:center;font:900 110px Inter;letter-spacing:-.045em;color:#04130a', { fx: 'up', pop: true, gap: .1 })
+  } else if ($('kIntro')) $('kIntro').innerHTML = ''
+  if (t < 7.5 || t >= 9.0) kin('kName', '', 99, 99, t, '')
+  // circle wipe to black
+  const w = E3((t - 8.65) / .4) * 2400; $('wipe').style.width = $('wipe').style.height = w + 'px'; $('wipe').style.opacity = t < 9.6 ? 1 : 0
+  // --- 8.9-9.8: the promise in one line
+  if (t >= 8.85 && t < 9.95) {
+    const out = E3((t - 9.6) / .3)
+    kin('kPromise', 'Every squad. One live trading floor.', 8.92, 9.7, t, `left:0;right:0;top:450px;text-align:center;font:800 92px Inter;letter-spacing:-.04em;color:#fff;transform:scale(${1 + out * .5});filter:blur(${out * 14}px)`, { fx: 'up', gap: .04, dur: .3, color: { 'live': '#3fe08e' } })
+  } else kin('kPromise', '', 99, 99, t, '')
+
+  // --- 9.7-25.7: the floor
+  const on3 = t > T3.a - .05 && t < T3.b + .1
+  $('persp').style.display = on3 ? 'block' : 'none'
+  if (on3) {
+    pose = floorPose(t)
+    // window state: full screen until 21.4, then it pulls back into a browser window on mint
+    const k = IO((t - 21.4) / .8), sc = lerp(1, .72, k), x = lerp(0, (1920 - 1920 * .72) / 2, k), y = lerp(-54, 170, k)
+    const tilt = (1 - E3((t - 21.6) / 1.4)) * k
+    const punch = [13.0, 16.2, 18.6].reduce((m, c) => (t >= c && t < c + .5 ? 1 + .05 * (1 - E3((t - c) / .5)) : m), 1)
+    $('win').style.transform = `translate(${x}px, ${y}px) scale(${sc * punch})`
+    const Z = 1 + .5 * (IO((t - 22.4) / .65) - IO((t - 23.35) / .75)), fx = x + sc * 230, fy = y + sc * (54 + 430)
+    $('persp').style.transformOrigin = `${fx}px ${fy}px`; $('persp').style.transform = `scale(${Z})`
+    const zm = (px, py) => [fx + (px - fx) * Z, fy + (py - fy) * Z]
+    $('tilt').style.transform = `rotateX(${tilt * 14}deg) rotateY(${tilt * -12}deg)`
+    $('win').style.borderRadius = (k * 18 / sc) + 'px'
+    $('persp').style.opacity = clamp((t - 9.7) / .2) * (1 - E3((t - 25.4) / .3))
+    FD.body.style.setProperty('--ui', clamp((t - 21.7) / .5))
+    FD.body.style.setProperty('--tags', Math.max(ramp(t, 10.6, 12.9, .3), ramp(t, 16.5, 18.5, .3)))
+    // the click on #2 in the standings
+    const want = t >= 23.2 ? second.id : '__none'
+    if (want !== selState) { F.SITE.select(want); selState = want }
+    const cardEl = FD.getElementById('card'); if (cardEl) { const c = E3((t - 23.3) / .4); cardEl.style.opacity = t >= 23.2 ? c : 0; cardEl.style.transform = `translateY(${(1 - c) * 16}px)` }
+    F.renderFrame(t)
+    // cursor in screen space: from the middle of the window to the row
+    const row = FD.querySelector(`#rows .row[data-id="${CSS.escape(second.id)}"]`)
+    if (row && t > 22.3 && t < 25.6) {
+      const r = row.getBoundingClientRect(), [tx, ty] = zm(x + sc * (r.left + 150), y + sc * (54 + r.top + r.height / 2))
+      const m = IO((t - 22.4) / .7), cx = lerp(1300, tx, m), cy = lerp(800, ty, m) - Math.sin(m * Math.PI) * 60
+      const press = t > 23.1 && t < 23.25 ? .85 : 1
+      $('cursor').style.opacity = clamp((t - 22.35) / .2) * (1 - clamp((t - 24.8) / .3)); $('cursor').style.transform = `translate(${cx}px, ${cy}px) scale(${press})`
+      const rp = (t - 23.15) / .6; $('ripple').style.opacity = rp > 0 && rp < 1 ? 1 - rp : 0; $('ripple').style.left = (tx + 4) + 'px'; $('ripple').style.top = (ty + 4) + 'px'; $('ripple').style.width = $('ripple').style.height = (20 + rp * 90) + 'px'
+    } else { $('cursor').style.opacity = 0; $('ripple').style.opacity = 0 }
+  } else { $('cursor').style.opacity = 0; $('ripple').style.opacity = 0 }
+
+  // captions over the floor, a new spot and entrance every shot
+  const CAPS = [
+    { a: 10.1, b: 12.8, k: 'THE FLOOR', n: '01', t: 'The top 20 squads. 20 desks. One room.', css: 'left:90px;bottom:110px;width:900px', fx: 'up', scrim: 'linear-gradient(20deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,0) 45%)' },
+    { a: 13.3, b: 16.0, k: 'THEIR SCREENS', n: '02', t: 'Their real PnL and holdings, on their own screens.', css: 'left:90px;top:96px;width:780px', scrim: 'linear-gradient(160deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,0) 55%)', fx: 'right' },
+    { a: 16.45, b: 18.4, k: 'LIVE', n: '03', t: 'The higher they rank, the brighter their desk burns.', css: 'right:90px;bottom:110px;width:900px;text-align:right', fx: 'left', right: true, scrim: 'linear-gradient(-20deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,0) 45%)' },
+    { a: 18.85, b: 21.2, k: 'THE WALL', n: '04', t: 'The leaderboard, pulled from pump.fun around the clock.', css: 'left:0;right:0;bottom:120px;text-align:center', fx: 'scale', center: true, scrim: 'linear-gradient(0deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,0) 40%)' },
+    { a: 21.65, b: 22.55, k: 'THE SITE', n: '05', t: 'Click any squad.', css: 'left:0;right:0;top:56px;text-align:center;text-shadow:none', fx: 'drop', center: true, dark: true },
+    { a: 23.85, b: 25.4, k: 'THE SITE', n: '05', t: 'Their desk, their numbers, their coins.', css: 'left:0;right:0;top:56px;text-align:center;text-shadow:none', fx: 'up', center: true, dark: true },
+  ]
+  const C = CAPS.find((c) => t >= c.a - .05 && t <= c.b + .3)
+  if (C) {
+    const out = clamp((C.b + .3 - t) / .3), kk = E5((t - C.a) / .35)
+    $('cap').style.cssText = C.css + ';opacity:' + out
+    $('scrim').style.background = C.scrim || 'none'; $('scrim').style.opacity = ramp(t, C.a - .3, C.b + .3, .3)
+    $('capK').style.cssText = `opacity:${kk};transform:translateX(${(C.right ? 1 : -1) * (1 - kk) * -30}px);${C.right ? 'justify-content:flex-end;' : C.center ? 'justify-content:center;' : ''}${C.dark ? 'color:#1f9a55;' : ''}`
+    $('capK').innerHTML = `<b${C.dark ? ' style="background:#04130a;color:#3fe08e"' : ''}>${C.n}</b>${C.k}`
+    $('capT').style.color = C.dark ? '#04130a' : '#fff'
+    $('capT').innerHTML = C.t.split(' ').map((wd, i) => {
+      const k = E5((t - C.a - .12 - i * .06) / .38)
+      const tf = C.fx === 'left' ? `translateX(${(1 - k) * 50}px)` : C.fx === 'right' ? `translateX(${-(1 - k) * 50}px)` : C.fx === 'scale' ? `scale(${1.4 - .4 * k})` : C.fx === 'drop' ? `translateY(${-(1 - k) * 36}px)` : `translateY(${(1 - k) * 36}px)`
+      const g = /brighter|PnL|live|pump.fun/.test(wd) ? 'color:#3fe08e;' : ''
+      return `<span style="${C.dark ? '' : g}opacity:${k.toFixed(3)};filter:blur(${((1 - k) * 12).toFixed(1)}px);transform:${tf}">${esc(wd)}</span>`
+    }).join(' ')
+  } else { $('cap').style.opacity = 0; $('scrim').style.opacity = 0 }
+  $('stamp').style.opacity = ramp(t, 10.0, 21.3, .3) * .9
+  // the leader's figures fly off the screens (shot 02)
+  ;[['pa', 13.55], ['pb', 13.7], ['pc', 13.85], ['pd', 14.0]].forEach(([id, a], i) => {
+    const k = back((t - a) / .45), o = E3((t - 15.85) / .3), e = $(id)
+    e.style.right = '90px'; e.style.top = (300 + i * 150) + 'px'; e.style.left = 'auto'
+    e.style.opacity = t > a ? clamp(k) * (1 - o) : 0; e.style.transform = `translateX(${(1 - clamp(k)) * 120 + o * 60}px) scale(${.85 + .15 * k})`
+  })
+  $('pcv').textContent = usd(lead.pnl * E3((t - 13.85) / 1.1))
+
+  // --- 25.6-28: the numbers, fast, each somewhere new
+  kin('kN1', N.toLocaleString('en-US') + ' squads.', 25.65, 25.95, t, 'left:140px;top:300px;font:900 150px Inter;letter-spacing:-.05em;color:#04130a', { fx: 'left', gap: .05, dur: .3 })
+  kin('kN2', '$2,500,000 on the line.', 26.25, 26.8, t, 'right:140px;top:560px;font:900 120px Inter;letter-spacing:-.045em;color:#04130a;text-align:right', { fx: 'right', hl: ['$2,500,000'], gap: .05, dur: .3 })
+  kin('kN3', 'Live. Around the clock.', 26.9, 27.75, t, 'left:0;right:0;top:420px;text-align:center;font:900 140px Inter;letter-spacing:-.05em;color:#04130a', { fx: 'scale', pop: true, gap: .06, hl: ['Live.'], dur: .32 })
+  if (t >= 25.6 && t < 28) $('rings').innerHTML += [[25.65, 0], [26.25, 0], [26.9, 0]].map(([t0]) => { const a = (t - t0) / .9; if (a < 0 || a > 1) return ''; return `<div class="ring" style="width:${200 + a * 1600}px;height:${200 + a * 1600}px;opacity:${(1 - a) * .5}"></div>` }).join('')
+
+  // --- 28-30.7: the coin
+  $('coin').style.opacity = ramp(t, 27.85, 30.75, .15)
+  const ck = back((t - 28.0) / .6); $('coinImg').style.transform = `translate(-50%, -50%) scale(${Math.max(0, ck) * (1 + .03 * clamp((t - 28.6) / 2))}) rotateY(${(1 - clamp(ck)) * 120}deg)`
+  $('coinImg').style.opacity = clamp((t - 28.0) / .15)
+  ;[...$('tick').children].forEach((s, i) => { const k = back((t - 28.35 - i * .045) / .4); s.style.opacity = clamp(k); s.style.transform = `translateY(${(1 - k) * 70}px)` })
+  $('coinSub').style.opacity = E3((t - 29.0) / .4); $('coinSub').style.transform = `translateY(${(1 - E3((t - 29.0) / .4)) * 20}px)`
+  const pk = back((t - 29.45) / .45); $('pfPill').style.opacity = clamp(pk); $('pfPill').style.transform = `translateX(-50%) scale(${.7 + .3 * pk})`
+  // --- 30.7-34: the end card
+  $('end').style.opacity = E3((t - 30.7) / .4)
+}
+await document.fonts.ready
+window.renderFrame(0); window.READY = true
+</script>
+</body>
+</html>

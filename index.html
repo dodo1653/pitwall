@@ -523,7 +523,8 @@ function frame(t) {
   updatePods()
   if (Math.floor(t) !== wallAt) { drawWall(); wallAt = Math.floor(t) }
   let pose = FILM ? filmPose(t) : directorPose(t)
-  if (camMode === 'free') { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, Math.max(.4, o.target.y + Math.sin(o.pitch) * o.dist), o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
+  if (window.camOverride) { const o = window.camOverride(t); if (o) pose = { pos: new THREE.Vector3(o.pos.x, o.pos.y, o.pos.z), look: new THREE.Vector3(o.look.x, o.look.y, o.look.z) } }
+  if (camMode === 'free' && !window.camOverride) { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, Math.max(.4, o.target.y + Math.sin(o.pitch) * o.dist), o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
   else if (blendFrom) { const f = ease((performance.now() - blendAt) / 2400); if (f >= 1) blendFrom = null; else pose = { pos: blendFrom.pos.clone().lerp(pose.pos, f), look: blendFrom.look.clone().lerp(pose.look, f) } }
   lastPose = pose
   camera.position.copy(pose.pos); camera.lookAt(pose.look)
@@ -546,7 +547,9 @@ await load(); renderTower(); renderPit()
 const lift = () => { $('intro').classList.add('out'); setTimeout(() => document.body.classList.add('ready'), 500) }
 $('intro').onclick = lift
 if (CAPTURE) { $('intro').style.display = 'none'; document.body.classList.add('ready') } else setTimeout(lift, 3400)
-if (CAPTURE) { document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); if (Q.get('clean')) { $('tags').style.display = 'none' } window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
+// a host page (the promo) can drive the floor: camera poses, projections, the squad card
+window.SITE = { podPos, shotPose, select, board: () => board, project: (x, y, z) => { tmpV.set(x, y, z).project(camera); return { x: (tmpV.x * .5 + .5) * W, y: (-tmpV.y * .5 + .5) * H, z: tmpV.z } } }
+if (CAPTURE) { if (!Q.get('ui')) document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); if (Q.get('clean')) { $('tags').style.display = 'none' } window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
 else {
   setInterval(async () => { await load(); renderTower(); renderPit(); if (selected) select(selected) }, 60000)
   const t0 = performance.now(); const loop = () => { frame((performance.now() - t0) / 1000); requestAnimationFrame(loop) }; loop()
