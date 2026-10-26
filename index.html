@@ -78,6 +78,13 @@
   #stamp { position: absolute; right: 40px; bottom: 18px; font: 500 11px 'JetBrains Mono'; color: var(--faint); }
   .tagc { position: absolute; transform: translate(-50%, -100%); text-align: center; font: 700 12px 'Titillium Web'; letter-spacing: .08em; white-space: nowrap; text-shadow: 0 1px 6px #000; }
   .tagc i { font-style: normal; display: inline-block; padding: 1px 6px; margin-right: 6px; background: var(--ink); color: #000; border-radius: 3px; }
+  #ca { position: absolute; top: 112px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 12px; padding: 7px 8px 7px 9px; border-radius: 999px; }
+  #ca.on { display: flex; }
+  #ca img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+  #ca b { font: 700 13px 'Titillium Web'; letter-spacing: .14em; }
+  #ca code { font: 500 12px 'JetBrains Mono'; color: var(--dim); }
+  #ca button, #ca a { height: 26px; padding: 0 12px; border-radius: 13px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); font: 600 11px Inter; letter-spacing: .04em; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  #ca button:hover, #ca a:hover { background: rgba(255,255,255,.12); }
   body.capture .site, body.capture #foot { display: none !important; }
   body.film #brand, body.film #race, body.film #stamp, body.film #bc { opacity: 0; }
   body.film #tower, body.film #pit { display: block !important; opacity: 0; }
@@ -100,6 +107,7 @@
 <div id="ui">
   <div id="brand"><div class="n">SQUAD WARS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
   <div id="race" class="glass"><div><b id="cd">-</b><span>To the flag</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
+  <div id="ca" class="glass site"><img src="brand/squads_coin.png" alt=""><b id="caT">$SQUADS</b><code id="caV"></code><button id="caCopy">Copy CA</button><a id="caPf" target="_blank" rel="noopener">pump.fun</a></div>
   <div id="tower" class="glass site"><div class="hd"><span>POS · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
   <div id="pit" class="glass site"><h3>PIT WALL</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
   <div id="bc" class="glass"><div class="tag" id="bcTag">OVERTAKE</div><div class="txt" id="bcTxt"></div></div>
@@ -123,6 +131,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { Reflector } from 'three/addons/objects/Reflector.js'
+import PROJECT from './project.config.js'
 
 const Q = new URLSearchParams(location.search)
 const CAPTURE = Q.get('capture')
@@ -486,6 +495,12 @@ function frame(t) {
 }
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix() })
 
+// the $SQUADS CA bar (only once a CA is set)
+if (PROJECT.mint) {
+  $('caT').textContent = '$' + PROJECT.ticker; $('caV').textContent = PROJECT.mint.slice(0, 6) + '…' + PROJECT.mint.slice(-6)
+  $('caPf').href = 'https://pump.fun/coin/' + encodeURIComponent(PROJECT.mint); $('ca').classList.add('on')
+  $('caCopy').onclick = () => { navigator.clipboard?.writeText(PROJECT.mint); $('caCopy').textContent = 'Copied'; setTimeout(() => { $('caCopy').textContent = 'Copy CA' }, 1500) }
+}
 await load(); renderTower(); renderPit()
 if (CAPTURE) { document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
 else {
