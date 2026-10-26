@@ -24,10 +24,14 @@ const url = (v) => (typeof v === 'string' && /^https:\/\//.test(v) ? v.slice(0, 
 // pump.fun's competition response -> our compact standings (only the fields we show, all validated)
 function compact(raw) {
   const c = raw.competition || {}, lb = raw.leaderboard || raw
-  const entries = (Array.isArray(lb.entries) ? lb.entries : []).slice(0, 100).map((e) => ({
-    id: str(e.entryId, 64), rank: num(e.rank), name: str(e.username, 40) || 'Squad', img: url(e.profileImageUrl),
+  const list = Array.isArray(lb.entries) ? lb.entries : Array.isArray(raw) ? raw : []
+  const entries = list.slice(0, 100).map((e, i) => ({
+    id: str(e.entryId || e.id || e.participantId || e.squadId || e.groupId || e.username || e.name || String(i), 64),
+    rank: num(e.rank || e.position || e.place) || i + 1,
+    name: str(e.username || e.name || e.squadName || e.groupName || e.displayName || e.title, 40) || 'Squad',
+    img: url(e.profileImageUrl || e.imageUrl || e.image || e.avatarUrl || e.avatar),
     pnl: num(e.pnlUsd), realized: num(e.realizedPnlUsd), unrealized: num(e.unrealizedPnlUsd), spentSol: num(e.buySpendSol),
-    members: num(e.memberCount), positions: num(e.positionsCount),
+    members: num(e.memberCount || e.membersCount || e.members?.length), positions: num(e.positionsCount),
     top: (Array.isArray(e.topPositions) ? e.topPositions : []).slice(0, 5).map((p) => ({ mint: str(p.mint, 64), symbol: str(p.symbol, 20), name: str(p.name, 40), img: url(p.imageUri) })),
   })).filter((e) => e.id && e.rank > 0)
   return {
@@ -46,6 +50,9 @@ export default async function handler(req) {
     const b = compact(raw)
     const prevC = JSON.parse((await redis('GET', 'board:latest')) || 'null')?.competition
     if (!b.competition.endsAt && prevC) b.competition = prevC
+    // keep a small sample of what arrived, so the format can be checked (GET /api/board?sample=1)
+    const first = (Array.isArray(raw?.leaderboard?.entries) ? raw.leaderboard.entries : Array.isArray(raw?.entries) ? raw.entries : Array.isArray(raw) ? raw : [])[0]
+    await redis('SET', 'board:sample', JSON.stringify({ at: Date.now(), topKeys: Object.keys(raw || {}).slice(0, 30), entryKeys: first ? Object.keys(first).slice(0, 40) : null, entry: first ? JSON.stringify(first).slice(0, 1500) : null, n: b.entries.length }))
     if (b.entries.length < 3) return json({ error: 'no standings in that response' }, 400)
     const prev = JSON.parse((await redis('GET', 'board:latest')) || 'null')
     if (prev && prev.builtAtMs >= b.builtAtMs) return json({ ok: true, unchanged: true })
@@ -60,6 +67,7 @@ export default async function handler(req) {
     return json({ ok: true, squads: b.entries.length, builtAtMs: b.builtAtMs })
   }
   const u = new URL(req.url)
+  if (u.searchParams.get('sample')) return json(JSON.parse((await redis('GET', 'board:sample')) || 'null'))
   if (u.searchParams.get('hist')) {
     const h = await redis('LRANGE', 'board:hist', 0, -1)
     return json(h.map((x) => JSON.parse(x)), 200, 'public, s-maxage=120, stale-while-revalidate=300')
