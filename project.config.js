@@ -1,6 +1,7 @@
-// The $SQUADS coin. Set the CA with: node set_ca.mjs <CA>   (writes this file, commits and pushes)
+// The coin. Set the CA with: node set_ca.mjs <CA>   (writes this file, commits and pushes)
 export default {
-  ticker: 'SQUADS',
-  name: 'Squad Wars',
+  ticker: 'TRENCHERS',
+  name: 'Squad Trenchers',
+  x: '',          // the project's X account, e.g. 'https://x.com/squadtrenchers'
   mint: '',
 }

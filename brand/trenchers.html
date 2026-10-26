@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+<style>html, body { margin: 0; background: #000; } svg { display: block; }</style>
+</head>
+<body>
+<svg id="s" width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx=".5" cy=".4" r=".6">
+      <stop offset="0" stop-color="#3fe08e" stop-opacity=".30"/>
+      <stop offset=".45" stop-color="#3fe08e" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#3fe08e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1a14"/>
+      <stop offset="1" stop-color="#06100b"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3fe08e" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#3fe08e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="blur3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="1000" height="1000" fill="#000"/>
+  <rect width="1000" height="1000" fill="url(#glow)"/>
+  <g id="g"></g>
+</svg>
+<script>
+const Q = new URLSearchParams(location.search)
+const NS = 'http://www.w3.org/2000/svg', g = document.getElementById('g')
+const el = (t, a, p = g) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e }
+const GREEN = '#3fe08e'
+// three monitors in a shallow arc: the side ones are trapezoids, turned in towards the trader
+const mons = [
+  { pts: [[90, 250], [330, 284], [330, 494], [90, 512]], c: [210, 380] },
+  { pts: [[350, 262], [650, 262], [650, 500], [350, 500]], c: [500, 381] },
+  { pts: [[670, 284], [910, 250], [910, 512], [670, 494]], c: [790, 380] },
+]
+const poly = (pts) => pts.map((p) => p.join(',')).join(' ')
+for (const m of mons) {
+  el('polygon', { points: poly(m.pts), fill: 'url(#scr)', stroke: '#1d2a23', 'stroke-width': 6 })
+}
+// candles climbing left to right across all three screens (one market, three windows)
+function candles(m, i0, n) {
+  const [a, b, c, d] = m.pts, top = (x) => a[1] + (b[1] - a[1]) * x, bot = (x) => d[1] + (c[1] - d[1]) * x
+  for (let i = 0; i < n; i++) {
+    const t = (i + .5) / n, x = a[0] + (b[0] - a[0]) * t, h = bot(t) - top(t)
+    const k = (i0 + i) / 23, base = .82 - k * .62, up = (i0 + i) % 5 !== 3
+    const y0 = top(t) + h * (base + (up ? .06 : -.03)), y1 = top(t) + h * (base - (up ? .07 : -.05))
+    const w = (b[0] - a[0]) / n * .46
+    el('line', { x1: x, x2: x, y1: Math.max(y0, y1) + h * .04, y2: Math.min(y0, y1) - h * .04, stroke: up ? GREEN : '#ff6157', 'stroke-width': 3, opacity: .9 })
+    el('rect', { x: x - w / 2, y: Math.min(y0, y1), width: w, height: Math.abs(y1 - y0) + 2, fill: up ? GREEN : '#ff6157', rx: 1.5 })
+  }
+}
+candles(mons[0], 0, 7); candles(mons[1], 7, 9); candles(mons[2], 16, 7)
+// screen glow bleeding out
+for (const m of mons) el('polygon', { points: poly(m.pts), fill: GREEN, opacity: .1, filter: 'url(#blur8)' })
+// the desk edge catching the light
+el('rect', { x: 60, y: 528, width: 880, height: 4, fill: GREEN, opacity: .35 })
+el('rect', { x: 60, y: 532, width: 880, height: 120, fill: 'url(#desk)' })
+// the trencher, from behind: head and shoulders in black with a green rim light along the top edge
+const body = 'M 250 1000 C 250 860, 300 800, 390 778 C 420 770, 440 752, 444 728 L 448 700 C 418 682, 402 650, 402 610 C 402 548, 446 506, 500 506 C 554 506, 598 548, 598 610 C 598 650, 582 682, 552 700 L 556 728 C 560 752, 580 770, 610 778 C 700 800, 750 860, 750 1000 Z'
+el('path', { d: body, fill: 'none', stroke: GREEN, 'stroke-width': 14, opacity: .55, filter: 'url(#blur8)' })
+el('path', { d: body, fill: 'none', stroke: GREEN, 'stroke-width': 4, opacity: .8, filter: 'url(#blur3)' })
+el('path', { d: body, fill: '#000' })
+if (Q.get('text')) { const t = el('text', { x: 500, y: 960, 'text-anchor': 'middle', fill: '#fff', 'font-family': 'Inter', 'font-weight': 700, 'font-size': 54, 'letter-spacing': 16 }); t.textContent = 'SQUAD TRENCHERS' }
+document.fonts.ready.then(() => { window.READY = true })
+</script>
+</body>
+</html>

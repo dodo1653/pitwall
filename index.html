@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Squad Wars</title>
+<title>Squad Trenchers</title>
+<link rel="icon" href="brand/trenchers_coin.png">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The pump.fun $2.5M Squads Competition, live: every squad on one trading floor, their profit on their screens.">
-<meta property="og:title" content="Squad Wars">
-<meta property="og:description" content="The pump.fun $2.5M Squads Competition, live: every squad on one trading floor, their profit on their screens.">
+<meta name="description" content="Every squad in the pump.fun $2.5M Squads Competition, on one trading floor. Their profit on their screens, live.">
+<meta property="og:title" content="Squad Trenchers">
+<meta property="og:description" content="Every squad in the pump.fun $2.5M Squads Competition, on one trading floor. Their profit on their screens, live.">
 <meta property="og:image" content="/brand/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +17,24 @@
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
   canvas { display: block; cursor: grab; } canvas.drag { cursor: grabbing; }
   #ui { position: fixed; inset: 0; pointer-events: none; color: var(--ink); font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
-  .glass { background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 14px; }
+  .glass { background: linear-gradient(180deg, rgba(14,16,20,.72), rgba(7,8,11,.66)); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04); backdrop-filter: blur(18px) saturate(1.1); -webkit-backdrop-filter: blur(18px) saturate(1.1); border-radius: 16px; }
+  .reveal { opacity: 0; transform: translateY(10px); transition: opacity .9s ease, transform .9s ease; }
+  body.ready .reveal { opacity: 1; transform: none; }
+  #intro { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; pointer-events: auto; cursor: pointer; transition: opacity 1.4s ease; }
+  #intro.out { opacity: 0; pointer-events: none; }
+  #intro img { width: 92px; height: 92px; border-radius: 22px; opacity: 0; transform: scale(.94); animation: inImg 1.4s .2s ease forwards; }
+  #intro .t { margin-top: 30px; font: 600 34px Inter; letter-spacing: .5em; padding-left: .5em; opacity: 0; filter: blur(12px); animation: inT 1.6s .5s ease forwards; }
+  #intro .l { margin-top: 16px; font: 400 15px Inter; color: rgba(255,255,255,.55); letter-spacing: .02em; opacity: 0; animation: inT 1.4s 1.1s ease forwards; }
+  #intro .bar { margin-top: 34px; width: 160px; height: 1px; background: rgba(255,255,255,.12); overflow: hidden; }
+  #intro .bar i { display: block; height: 100%; width: 0; background: #fff; animation: bar 3s .4s ease forwards; }
+  @keyframes inImg { to { opacity: 1; transform: none; } }
+  @keyframes inT { to { opacity: 1; filter: none; } }
+  @keyframes bar { to { width: 100%; } }
+  #brand { display: flex; align-items: center; gap: 14px; }
+  #brand img { width: 40px; height: 40px; border-radius: 11px; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+  .row.top3 .p { color: var(--ink); }
+  .row.top3 img { box-shadow: 0 0 0 2px rgba(255,255,255,.75); }
+  #foot a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.18); pointer-events: auto; }
   .site { pointer-events: auto; }
   #brand { position: absolute; top: 34px; left: 40px; }
   #brand .n { font: 600 19px Inter; letter-spacing: .36em; }
@@ -81,23 +99,39 @@
   .tagp i { font-style: normal; display: inline-block; padding: 1px 6px; margin-right: 6px; background: var(--ink); color: #000; border-radius: 3px; font: 700 11px 'JetBrains Mono'; }
   .tagp small { display: block; margin-top: 2px; font: 500 11px 'JetBrains Mono'; }
   body.capture .site, body.capture #foot { display: none !important; }
+  body.film #brand, body.film #race, body.film #stamp, body.film #bc, body.film #tags { opacity: 0 !important; }
+  body.film #tower, body.film #pit { display: block !important; opacity: 0; }
+  #cap { position: absolute; color: #fff; font: 600 46px Inter; letter-spacing: -.01em; text-shadow: 0 2px 30px rgba(0,0,0,.9); }
+  #cap span { display: inline-block; margin: 0 .13em; }
+  #end { position: absolute; inset: 0; background: #000; opacity: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #end img.lg { width: 430px; height: 430px; }
+  #end .u { margin-top: 12px; font: 600 24px Inter; letter-spacing: .1em; }
+  #end .pf { margin-top: 24px; display: flex; align-items: center; gap: 12px; font: 500 16px Inter; color: rgba(255,255,255,.75); }
+  #end .pf img, #pfOpen img { width: 40px; height: 40px; }
+  #end .d { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,.4); }
+  #pfOpen { position: absolute; left: 80px; bottom: 170px; opacity: 0; }
+  #pfOpen img { width: 58px; height: 58px; }
   @media (max-width: 900px) { #pit, #race div:nth-child(3) { display: none; } #tower { width: auto; right: 16px; left: 16px; top: auto; bottom: 60px; max-height: 40vh; overflow: auto; } #brand { left: 16px; top: 18px; } #race { top: 70px; } #ca { top: 130px; } }
 </style>
 </head>
 <body>
 <div id="ui">
-  <div id="brand"><div class="n" id="brandName">SQUAD WARS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div>
-  <div id="race" class="glass"><div><b id="cd">-</b><span>Time left</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
-  <div id="ca" class="glass site"><img src="brand/squads_coin.png" alt=""><b id="caT"></b><code id="caV"></code><button id="caCopy">Copy CA</button><a id="caPf" target="_blank" rel="noopener">pump.fun</a></div>
-  <div id="tower" class="glass site"><div class="hd"><span>RANK · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
-  <div id="pit" class="glass site"><h3>THE DESKS</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
+  <div id="brand" class="reveal"><img src="brand/trenchers_coin.png" alt=""><div><div class="n" id="brandName">SQUAD TRENCHERS</div><div class="s"><i></i>LIVE · pump.fun Squads Competition</div></div></div>
+  <div id="race" class="glass reveal" style="transition-delay:.15s"><div><b id="cd">-</b><span>Time left</span></div><div><b id="prize">$2.5M</b><span>Prize pool</span></div><div><b id="field">-</b><span>Squads</span></div></div>
+  <div id="ca" class="glass site reveal" style="transition-delay:.3s"><img src="brand/trenchers_coin.png" alt=""><b id="caT"></b><code id="caV"></code><button id="caCopy">Copy CA</button><a id="caPf" target="_blank" rel="noopener">pump.fun</a></div>
+  <div id="tower" class="glass site reveal" style="transition-delay:.45s"><div class="hd"><span>RANK · SQUAD</span><span>PROFIT · GAP</span></div><div id="rows"></div><div class="more" id="moreBtn">FULL STANDINGS</div></div>
+  <div id="pit" class="glass site reveal" style="transition-delay:.6s"><h3>THE DESKS</h3><div class="sub">What the top 10 squads are holding</div><div id="coins"></div></div>
   <div id="bc" class="glass"><div class="tag" id="bcTag"></div><div class="txt" id="bcTxt"></div></div>
   <div id="card" class="glass site"></div>
   <div id="full" class="glass site"></div>
   <div id="tags"></div>
   <button id="auto" class="site">AUTO CAMERA</button>
-  <div id="foot">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
+  <div id="foot" class="reveal" style="transition-delay:.9s"><span id="footX"></span>Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
+  <div id="intro"><img src="brand/trenchers_coin.png" alt=""><div class="t">SQUAD TRENCHERS</div><div class="l">Every squad in the $2.5M pump.fun competition, on one trading floor.</div><div class="bar"><i></i></div></div>
   <div id="stamp"></div>
+  <div id="cap"></div>
+  <div id="pfOpen"><img src="brand/pumpfun.svg" alt="pump.fun"></div>
+  <div id="end"><img class="lg" src="brand/trenchers_logo_text.png" alt=""><div class="u" id="endU"></div><div class="pf"><img src="brand/pumpfun.svg" alt="">Live from the pump.fun Squads Competition</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
 </div>
 <script>window.READY = false</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/" } }</script>
@@ -110,6 +144,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { Reflector } from 'three/addons/objects/Reflector.js'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js'
 import PROJECT from './project.config.js'
 
 const Q = new URLSearchParams(location.search)
@@ -121,6 +156,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 const usd = (v) => { const a = Math.abs(v), s = v < 0 ? '-' : '+'; return s + '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e3 ? (a / 1e3).toFixed(1) + 'K' : a.toFixed(0)) }
 const usdPlain = (v) => { const a = Math.abs(v); return '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e3 ? (a / 1e3).toFixed(1) + 'K' : a.toFixed(0)) }
 document.title = PROJECT.name; $('brandName').textContent = PROJECT.name.toUpperCase()
+document.querySelector('#intro .t').textContent = PROJECT.name.toUpperCase()
+if (PROJECT.x) $('footX').innerHTML = `<a href="${PROJECT.x}" target="_blank" rel="noopener">X</a> · `
 
 // ------------------------------------------------------------------ renderer
 let W = innerWidth, H = innerHeight
@@ -307,6 +344,7 @@ function updatePods() {
 // ------------------------------------------------------------------ post
 const composer = new EffectComposer(renderer)
 composer.addPass(new RenderPass(scene, camera))
+const bokeh = new BokehPass(scene, camera, { focus: 10, aperture: .0016, maxblur: .007 }); composer.addPass(bokeh)
 const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), .7, .6, .82); composer.addPass(bloom)
 composer.addPass(new OutputPass())
 const grade = new ShaderPass({ uniforms: { tDiffuse: { value: null }, t: { value: 0 } },
@@ -387,7 +425,7 @@ function renderTower() {
   $('rows').innerHTML = e.slice(0, 20).map((x, i) => {
     const gap = i === 0 ? 'LEADER' : '-' + usdPlain(e[0].pnl - x.pnl).slice(1)
     const was = pa && pa.get(x.id), mv = was && was !== x.rank ? (was > x.rank ? '<span class="mv" style="color:var(--up)">▲</span>' : '<span class="mv" style="color:var(--down)">▼</span>') : ''
-    return `<div class="row${selected === x.id ? ' sel' : ''}" data-id="${esc(x.id)}">${mv}<span class="p">${x.rank}</span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${gap}</span></div>`
+    return `<div class="row${selected === x.id ? ' sel' : ''}${i < 3 ? ' top3' : ''}" data-id="${esc(x.id)}">${mv}<span class="p">${x.rank}</span>${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<span class="av"></span>'}<span class="nm">${esc(x.name)}</span><span class="pnl" style="color:${x.pnl >= 0 ? 'var(--up)' : 'var(--down)'}">${usd(x.pnl)}</span><span class="gap">${gap}</span></div>`
   }).join('')
   for (const r of document.querySelectorAll('#rows .row')) r.onclick = () => select(r.dataset.id)
   $('field').textContent = (board.competition?.entriesCount || board.totalRanked || e.length).toLocaleString('en-US')
@@ -433,7 +471,7 @@ function updateTags() {
   for (const p of pods.slice(0, 12)) {
     if (!p.entry) continue
     tmpV.set(p.P.x, 2.05, p.P.z - .7).project(camera)
-    if (tmpV.z > 1 || Math.abs(tmpV.x) > .92 || tmpV.y > .8 || tmpV.y < -.85) continue
+    if (tmpV.z > 1 || Math.abs(tmpV.x) > .92 || tmpV.y > .2 || tmpV.y < -.85) continue
     const x = (tmpV.x * .5 + .5) * W, y = (-tmpV.y * .5 + .5) * H
     if (placed.some(([a, b]) => Math.abs(a - x) < 150 && Math.abs(b - y) < 34)) continue
     placed.push([x, y])
@@ -442,19 +480,58 @@ function updateTags() {
   $('tags').innerHTML = html.join('')
 }
 
+// ------------------------------------------------------------------ film mode (capture=1&film=1): the cinematic cut, ~25 s
+const FILM = Q.get('film')
+const E3 = (x) => 1 - Math.pow(1 - x, 3)
+const ramp = (t, a, b, fade = .5) => clamp((t - a) / fade) * clamp((b - t) / fade)
+const FILM_SHOTS = [[0, 0], [3.2, 1], [6.4, 2], [9.6, 4], [12.8, 3], [16, 1], [19.2, 0]]
+const FILM_END = 21.5
+const FILM_CAPS = [
+  { a: .4, b: 2.9, text: 'pump.fun put $2,500,000 on the line.', css: 'left:80px;bottom:100px;text-align:left;font-size:44px', fx: 'up' },
+  { a: 3.45, b: 6.0, text: '{N} squads.', css: 'left:0;right:0;top:41%;text-align:center;font-size:112px;font-weight:700;letter-spacing:-.03em', fx: 'scale' },
+  { a: 6.65, b: 9.2, text: 'Up to 20 traders each. All trading live.', css: 'right:80px;top:96px;text-align:right;font-size:40px', fx: 'left' },
+  { a: 9.85, b: 12.4, text: 'We put every one of them on one floor.', css: 'left:0;right:0;bottom:90px;text-align:center;font-size:48px', fx: 'blur' },
+  { a: 13.05, b: 15.6, text: 'The leaderboard never sleeps.', css: 'left:80px;top:110px;text-align:left;font-size:52px;font-weight:700', fx: 'right' },
+  { a: 16.25, b: 18.9, text: 'Their profit. On their screens. Live.', css: 'left:0;right:0;bottom:96px;text-align:center;font-size:46px', fx: 'up' },
+  { a: 19.45, b: 21.3, text: '{NAME}.', css: 'left:0;right:0;top:43%;text-align:center;font-size:92px;font-weight:700;letter-spacing:.01em', fx: 'scale' },
+]
+function filmPose(t) {
+  let i = FILM_SHOTS.length - 1; while (i > 0 && FILM_SHOTS[i][0] > t) i--
+  const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kind, t - t0)
+  if (i > 0) { const f = ease((t - t0) / .3); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(pk, t - p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
+  return cur
+}
+function filmOverlay(t) {
+  const c = FILM_CAPS.find((x) => t >= x.a - .1 && t <= x.b + .35)
+  if (c) {
+    const words = c.text.replace('{N}', (board.competition?.entriesCount || 962).toLocaleString('en-US')).replace('{NAME}', PROJECT.name).split(' '), out = clamp((c.b + .35 - t) / .35)
+    $('cap').style.cssText = 'position:absolute;' + c.css
+    $('cap').innerHTML = words.map((w, i) => {
+      const k = E3(clamp((t - c.a - i * .09) / .32)), o = (k * out).toFixed(3)
+      const tf = c.fx === 'up' ? `translateY(${(1 - k) * 22}px)` : c.fx === 'left' ? `translateX(${(1 - k) * 40}px)` : c.fx === 'right' ? `translateX(${-(1 - k) * 40}px)` : c.fx === 'scale' ? `scale(${1.25 - .25 * k})` : 'none'
+      return `<span style="opacity:${o};filter:blur(${((1 - k) * (c.fx === 'blur' ? 16 : 7)).toFixed(1)}px);transform:${tf}">${esc(w)}</span>`
+    }).join('')
+  } else $('cap').innerHTML = ''
+  $('end').style.opacity = clamp((t - FILM_END) / .7)
+  $('endU').textContent = '$' + PROJECT.ticker + ' · ' + location.host.replace(/^127.*/, 'squadsgp.vercel.app')
+  $('pfOpen').style.opacity = ramp(t, .3, 2.9, .4); $('pfOpen').style.transform = `translateY(${((1 - clamp((t - .3) / .4)) * 12).toFixed(1)}px)`
+}
+
 // ------------------------------------------------------------------ frame
 let wallAt = -1
 function frame(t) {
   updatePods()
   if (Math.floor(t) !== wallAt) { drawWall(); wallAt = Math.floor(t) }
-  let pose = directorPose(t)
+  let pose = FILM ? filmPose(t) : directorPose(t)
   if (camMode === 'free') { const o = orbit, cp = Math.cos(o.pitch); pose = { pos: new THREE.Vector3(o.target.x + Math.cos(o.yaw) * cp * o.dist, Math.max(.4, o.target.y + Math.sin(o.pitch) * o.dist), o.target.z + Math.sin(o.yaw) * cp * o.dist), look: o.target.clone() } }
   else if (blendFrom) { const f = ease((performance.now() - blendAt) / 2400); if (f >= 1) blendFrom = null; else pose = { pos: blendFrom.pos.clone().lerp(pose.pos, f), look: blendFrom.look.clone().lerp(pose.look, f) } }
   lastPose = pose
   camera.position.copy(pose.pos); camera.lookAt(pose.look)
+  bokeh.uniforms.focus.value += (pose.pos.distanceTo(pose.look) - bokeh.uniforms.focus.value) * (CAPTURE ? 1 : .08)
   grade.uniforms.t.value = t % 100
   composer.render()
   updateTags(); updateBroadcast(performance.now())
+  if (FILM) filmOverlay(t)
   $('cd').textContent = cdText(); $('prize').textContent = '$' + (+board.competition.prizeCopy / 1e6).toFixed(1) + 'M'
 }
 addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix() })
@@ -466,7 +543,10 @@ if (PROJECT.mint) {
   $('caCopy').onclick = () => { navigator.clipboard?.writeText(PROJECT.mint); $('caCopy').textContent = 'Copied'; setTimeout(() => { $('caCopy').textContent = 'Copy CA' }, 1500) }
 }
 await load(); renderTower(); renderPit()
-if (CAPTURE) { document.body.classList.add('capture'); window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
+const lift = () => { $('intro').classList.add('out'); setTimeout(() => document.body.classList.add('ready'), 500) }
+$('intro').onclick = lift
+if (CAPTURE) { $('intro').style.display = 'none'; document.body.classList.add('ready') } else setTimeout(lift, 3400)
+if (CAPTURE) { document.body.classList.add('capture'); if (FILM) document.body.classList.add('film'); if (Q.get('clean')) { $('tags').style.display = 'none' } window.DURATION = +(Q.get('dur') || 20); window.renderFrame = (t) => frame(t); frame(0) }
 else {
   setInterval(async () => { await load(); renderTower(); renderPit(); if (selected) select(selected) }, 60000)
   const t0 = performance.now(); const loop = () => { frame((performance.now() - t0) / 1000); requestAnimationFrame(loop) }; loop()
