@@ -86,6 +86,18 @@
   #ca button, #ca a { height: 26px; padding: 0 12px; border-radius: 13px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: var(--ink); font: 600 11px Inter; letter-spacing: .04em; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
   #ca button:hover, #ca a:hover { background: rgba(255,255,255,.12); }
   body.capture .site, body.capture #foot { display: none !important; }
+  #podBg { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.45) 38%, rgba(0,0,0,0) 62%); opacity: 0; }
+  #pod { position: absolute; left: 80px; top: 50%; transform: translateY(-50%); width: 760px; opacity: 0; }
+  #pod .pos { font: 700 30px 'Titillium Web'; letter-spacing: .3em; color: rgba(255,255,255,.6); }
+  #pod .row1 { display: flex; align-items: center; gap: 26px; margin-top: 10px; }
+  #pod .row1 img { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,.9); }
+  #pod .nm { font: 700 92px 'Titillium Web'; letter-spacing: .01em; text-transform: uppercase; line-height: .95; }
+  #pod .pnl { margin-top: 22px; font: 600 64px 'JetBrains Mono'; letter-spacing: -.03em; color: #4fd18b; }
+  #pod .meta { margin-top: 10px; font: 500 22px Inter; color: rgba(255,255,255,.75); display: flex; gap: 22px; align-items: center; }
+  #pod .meta img { width: 30px; height: 30px; border-radius: 7px; vertical-align: middle; margin-right: 6px; object-fit: cover; }
+  #pod .prize { display: inline-block; margin-top: 18px; padding: 8px 16px; border-radius: 8px; background: #fff; color: #000; font: 700 22px 'Titillium Web'; letter-spacing: .12em; }
+  #ribbon { position: absolute; left: 0; right: 0; bottom: 34px; white-space: nowrap; overflow: hidden; font: 700 22px 'Titillium Web'; letter-spacing: .28em; color: rgba(255,255,255,.28); opacity: 0; }
+  #asof { position: absolute; right: 40px; bottom: 18px; font: 500 13px 'JetBrains Mono'; color: rgba(255,255,255,.5); opacity: 0; }
   body.film #brand, body.film #race, body.film #stamp, body.film #bc { opacity: 0; }
   body.film #tower, body.film #pit { display: block !important; opacity: 0; }
   #cap { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font: 600 46px Inter, sans-serif; letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.8); }
@@ -118,6 +130,7 @@
   <div id="foot">Independent fan project. Not affiliated with pump.fun. Not financial advice.</div>
   <div id="stamp"></div>
   <div id="cap"></div>
+  <div id="podBg"></div><div id="pod"></div><div id="ribbon"></div><div id="asof"></div>
   <div id="pfOpen"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt="pump.fun"></span></div>
   <div id="end"><img class="lg" src="brand/squads_logo_text.png" alt=""><div class="u">$SQUADS · squadsgp.vercel.app</div><div class="pf"><span class="chip"><img src="brand/pumpfun_logo.jpg" alt=""></span>Live from the pump.fun Squads Competition</div><div class="d">Independent fan project. Not affiliated with pump.fun.</div></div>
 </div>
@@ -285,7 +298,8 @@ composer.addPass(grade)
 let board = null, prevBoard = null, events = [], selected = null, showN = 20
 async function load() {
   let d = null
-  if (!CAPTURE) { try { const r = await fetch('/api/board', { cache: 'no-store' }); if (r.ok) d = await r.json() } catch {} }
+  const src = CAPTURE ? Q.get('board') : '/api/board'          // captures can use the live standings: &board=https://squadsgp.vercel.app/api/board
+  if (src) { try { const r = await fetch(src, { cache: 'no-store' }); if (r.ok) d = await r.json() } catch {} }
   if (!d || !d.entries) d = await (await fetch('data/snapshot.json')).json()
   if (!d.competition || !d.competition.endsAt) d.competition = (await (await fetch('data/snapshot.json')).json()).competition
   if (board && d.builtAtMs !== board.builtAtMs) { prevBoard = board; diff(prevBoard, d) }
@@ -439,11 +453,34 @@ const FILM_CAPS = [
   { a: 16.95, b: 20.2, text: 'See what the leaders hold. Live.', css: 'left:470px;bottom:120px;text-align:left;font-size:40px', fx: 'up' },
   { a: 20.55, b: 22.8, text: 'Squad Wars.', css: 'left:0;right:0;top:44%;text-align:center;font-size:96px;font-weight:700;letter-spacing:.02em', fx: 'scale' },
 ]
-const FILM_END = 22.9
+let FILM_END = 22.9
+const TOP3 = Q.get('film') === 'top3'
+if (TOP3) {
+  FILM_SHOTS.length = 0; FILM_SHOTS.push([0, 0], [2.4, 3], [3.8, 11], [6.8, 12], [9.8, 13])          // 11-13: chase P3, P2, P1
+  FILM_CAPS.length = 0; FILM_CAPS.push(
+    { a: .3, b: 2.2, text: "pump.fun's squads are at war.", css: 'left:80px;top:96px;text-align:left;font-size:50px;font-weight:700', fx: 'up' },
+    { a: 2.55, b: 3.65, text: 'Three get paid.', css: 'left:0;right:0;top:42%;text-align:center;font-size:104px;font-weight:700;letter-spacing:-.02em', fx: 'scale' })
+  FILM_END = 13.0
+}
+const PRIZE = ['$1,500,000', '$750,000', '$250,000']
+function podCard(k, t, a, b) {
+  const e = board.entries[k]; if (!e) return
+  const kIn = E3(clamp((t - a) / .45)), kOut = clamp((b - t) / .3), o = kIn * kOut
+  const lead = k === 0 && board.entries[1] ? `<span>leads by ${usdPlain(e.pnl - board.entries[1].pnl)}</span>` : ''
+  const coins = (e.top || []).slice(0, 3).map((c) => `<span>${c.img ? `<img src="${esc(c.img)}" alt="">` : ''}$${esc(c.symbol || '')}</span>`).join('')
+  $('pod').style.opacity = o.toFixed(3)
+  $('pod').style.transform = `translateY(-50%) translateX(${((1 - kIn) * 60 - (1 - kOut) * 40).toFixed(1)}px)`
+  $('pod').style.filter = `blur(${((1 - kIn) * 8).toFixed(1)}px)`
+  const html = `<div class="pos">P${e.rank}${k === 0 ? ' · LEADER' : ''}</div><div class="row1">${e.img ? `<img src="${esc(e.img)}" alt="">` : ''}<div class="nm">${esc(e.name)}</div></div>
+    <div class="pnl">${usd(e.pnl)}</div><div class="meta"><span>${e.members} traders</span>${lead}</div><div class="meta">${coins}</div><div class="prize">${PRIZE[k]} IF IT HOLDS</div>`
+  if ($('pod').dataset.k !== String(k)) { $('pod').innerHTML = html; $('pod').dataset.k = String(k) }
+}
+const carFor = (kind) => kind >= 11 ? cars[13 - kind] : cars[0]
+const kindOf = (kind) => kind >= 11 ? 1 : kind
 function filmPose(t) {
   let i = FILM_SHOTS.length - 1; while (i > 0 && FILM_SHOTS[i][0] > t) i--
-  const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kind, t, cars[0], t0)
-  if (i > 0) { const f = ease((t - t0) / .28); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(pk, t, cars[0], p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
+  const [t0, kind] = FILM_SHOTS[i], cur = shotPose(kindOf(kind), t, carFor(kind), t0)
+  if (i > 0) { const f = ease((t - t0) / .28); if (f < 1) { const [p0, pk] = FILM_SHOTS[i - 1], p = shotPose(kindOf(pk), t, carFor(pk), p0); cur.pos.lerpVectors(p.pos, cur.pos, f); cur.look.lerpVectors(p.look, cur.look, f) } }
   return cur
 }
 const ramp = (t, a, b, fade = .6) => clamp((t - a) / fade) * clamp((b - t) / fade)
@@ -458,6 +495,19 @@ function filmOverlay(t) {
       return `<span style="opacity:${o};filter:blur(${((1 - k) * (c.fx === 'blur' ? 16 : 7)).toFixed(1)}px);transform:${tf}">${esc(w)}</span>`
     }).join('')
   } else $('cap').innerHTML = ''
+  if (TOP3) {
+    $('tower').style.opacity = 0; $('pit').style.opacity = 0; $('brand').style.opacity = $('race').style.opacity = 0
+    $('tags').style.display = t >= 3.6 ? 'none' : ''; $('podBg').style.opacity = ramp(t, 3.8, FILM_END, .4)
+    if (t >= 3.8 && t < 6.8) podCard(2, t, 3.8, 6.8); else if (t >= 6.8 && t < 9.8) podCard(1, t, 6.8, 9.8); else if (t >= 9.8 && t < FILM_END) podCard(0, t, 9.8, FILM_END); else $('pod').style.opacity = 0
+    const names = board.entries.slice(0, 40).map((x) => x.name.toUpperCase()).join('   ·   ')
+    if (!$('ribbon').textContent) $('ribbon').textContent = names + '   ·   ' + names
+    $('ribbon').style.opacity = ramp(t, .2, 3.7, .4); $('ribbon').style.transform = `translateX(${(-t * 160).toFixed(0)}px)`
+    $('asof').textContent = 'Standings ' + new Date(board.builtAtMs).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+    $('asof').style.opacity = ramp(t, 3.8, FILM_END, .4)
+    $('end').style.opacity = clamp((t - FILM_END) / .6)
+    const po = ramp(t, .3, 2.3, .3); $('pfOpen').style.opacity = po; $('pfOpen').style.left = '80px'; $('pfOpen').style.bottom = 'auto'; $('pfOpen').style.top = '30px'; $('pfOpen').style.transform = 'none'
+    return
+  }
   $('tower').style.opacity = ramp(t, 8.3, 20.3, .5)
   $('pit').style.opacity = ramp(t, 16.9, 20.3, .5)
   $('brand').style.opacity = $('race').style.opacity = ramp(t, 8.3, FILM_END, .5)
