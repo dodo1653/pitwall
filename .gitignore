@@ -1,0 +1,6 @@
+frames/
+stills/
+out/
+*.log
+node_modules/
+.vercel/
