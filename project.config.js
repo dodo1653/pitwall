@@ -3,5 +3,5 @@ export default {
   ticker: 'TRENCHERS',
   name: 'Squad Trenchers',
   x: '',          // the project's X account, e.g. 'https://x.com/squadtrenchers'
-  mint: '',
+  mint: '7C2p8trvWsGN53mxPZXzL7VBa5K4AwwEW218zytcpump',
 }
